@@ -2,7 +2,7 @@
 
 import { icon } from './icons.js';
 import { renderDealCard, renderHistoryCard, renderComparisonTable, animateScoreBars, showLoading, hideLoading, showToast } from './components.js';
-import { searchDeals, getSearchHistory, getSearchResult, searchState, findClarification } from './api.js';
+import { searchDeals, clarifyQuery, getSearchHistory, getSearchResult, searchState } from './api.js';
 
 window.__toast = showToast;
 
@@ -60,12 +60,10 @@ async function startSearch(query) {
   if (!searchState.query) searchState.query = query;
   searchState.refinedQuery = query;
 
-  const includeInternational = document.getElementById('include-international')?.checked || false;
-
   showLoading('מחפש את העסקאות הטובות ביותר', `מחפש "${query}"...`);
 
   try {
-    const data = await searchDeals(query, includeInternational);
+    const data = await searchDeals(query);
 
     if (data.error && (!data.deals || data.deals.length === 0)) {
       hideLoading();
@@ -82,12 +80,12 @@ async function startSearch(query) {
     window.location.hash = `#/results?q=${encodeURIComponent(query)}`;
   } catch (err) {
     hideLoading();
-    showToast('השרת לא זמין. ודא שהשרת רץ ונסה שוב.');
+    showToast('שגיאה בחיפוש. נסה שוב.');
     console.error('Search error:', err);
   }
 }
 
-function showClarificationDialog(originalQuery, rule) {
+function showClarificationDialog(originalQuery, question, options) {
   const existing = document.getElementById('clarification-overlay');
   if (existing) existing.remove();
 
@@ -99,12 +97,12 @@ function showClarificationDialog(originalQuery, rule) {
       <div class="clarification-card__icon">
         ${icon('help', 32)}
       </div>
-      <h3 class="clarification-card__title">${rule.question}</h3>
+      <h3 class="clarification-card__title">${question}</h3>
       <p class="clarification-card__subtitle">חיפשת <strong>"${originalQuery}"</strong> — עזור לנו למצוא בדיוק מה שאתה צריך:</p>
       <div class="clarification-options" id="clarification-options">
-        ${rule.options.map(opt => `
-          <button class="clarification-option" data-value="${opt.value}">
-            ${opt.label}
+        ${options.map(opt => `
+          <button class="clarification-option" data-value="${originalQuery} ${opt}">
+            ${opt}
           </button>
         `).join('')}
       </div>
@@ -136,7 +134,7 @@ function showClarificationDialog(originalQuery, rule) {
 }
 
 export function initHome() {
-  document.getElementById('search-form')?.addEventListener('submit', (e) => {
+  document.getElementById('search-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const input = document.getElementById('search-input');
     const q = input?.value.trim();
@@ -145,10 +143,19 @@ export function initHome() {
     searchState.query = null;
     searchState.refinedQuery = null;
 
-    const rule = findClarification(q);
-    if (rule) {
-      showClarificationDialog(q, rule);
-    } else {
+    try {
+      showLoading('בודק את השאילתה...', `מנתח "${q}"...`);
+      const clarification = await clarifyQuery(q);
+      hideLoading();
+
+      if (clarification.ready) {
+        startSearch(clarification.final_query || q);
+      } else {
+        showClarificationDialog(q, clarification.question, clarification.options || []);
+      }
+    } catch (err) {
+      hideLoading();
+      console.error('Clarify error:', err);
       startSearch(q);
     }
   });

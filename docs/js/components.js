@@ -124,10 +124,10 @@ export function renderHistoryCard(search) {
   const statusIcon = search.status === 'completed' ? 'check_circle' :
                      search.status === 'failed' ? 'error' : 'pending';
   const statusClass = search.status;
-  const date = new Date(search.started_at);
+  const date = new Date(search.started_at || search.created_at);
   const dateStr = date.toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' }) +
                   ' בשעה ' + date.toLocaleTimeString('he-IL', { hour: 'numeric', minute: '2-digit' });
-  const meta = search.status === 'completed' ? `נמצאו ${search.deals_found} עסקאות` :
+  const meta = search.status === 'completed' ? 'הושלם' :
                search.status === 'failed' ? 'נכשל' : 'רץ...';
 
   return `
