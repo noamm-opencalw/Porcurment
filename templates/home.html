@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Search{% endblock %}
+{% block title %}חיפוש{% endblock %}
 
 {% block content %}
 <!-- Hero -->
@@ -7,8 +7,8 @@
     <div class="hero-icon">
         <span class="material-symbols-rounded">storefront</span>
     </div>
-    <h1>Find the Best Deals</h1>
-    <p>Our AI procurement agents search the web, compare prices, and recommend the top 3 deals — so you don't have to.</p>
+    <h1>מצא את העסקאות הטובות ביותר</h1>
+    <p>סוכני הרכש החכמים שלנו סורקים את האינטרנט, משווים מחירים וממליצים על 3 העסקאות המובילות — כדי שלא תצטרכו לעשות את זה בעצמכם.</p>
 </section>
 
 <!-- Search -->
@@ -23,24 +23,24 @@
                 id="search-input"
                 name="product_query"
                 class="search-input"
-                placeholder="What product are you looking for?"
+                placeholder="איזה מוצר אתם מחפשים?"
                 autocomplete="off"
                 required
             >
             <button type="submit" class="search-btn">
                 <span class="material-symbols-rounded">bolt</span>
-                Find Deals
+                מצא עסקאות
             </button>
         </div>
     </form>
 
     <!-- Quick suggestions -->
     <div class="suggestions">
-        <button class="suggestion-chip" onclick="fillSearch('wireless keyboard')">wireless keyboard</button>
-        <button class="suggestion-chip" onclick="fillSearch('ergonomic office chair')">ergonomic office chair</button>
-        <button class="suggestion-chip" onclick="fillSearch('27 inch 4K monitor')">27 inch 4K monitor</button>
-        <button class="suggestion-chip" onclick="fillSearch('noise cancelling headphones')">noise cancelling headphones</button>
-        <button class="suggestion-chip" onclick="fillSearch('standing desk converter')">standing desk converter</button>
+        <button class="suggestion-chip" onclick="fillSearch('מקלדת אלחוטית')">מקלדת אלחוטית</button>
+        <button class="suggestion-chip" onclick="fillSearch('כיסא משרדי ארגונומי')">כיסא משרדי ארגונומי</button>
+        <button class="suggestion-chip" onclick="fillSearch('מסך 27 אינץ 4K')">מסך 27 אינץ׳ 4K</button>
+        <button class="suggestion-chip" onclick="fillSearch('אוזניות עם מסנן רעשים')">אוזניות עם מסנן רעשים</button>
+        <button class="suggestion-chip" onclick="fillSearch('שולחן עמידה מתכוונן')">שולחן עמידה מתכוונן</button>
     </div>
 </section>
 
@@ -48,23 +48,23 @@
 <section class="features">
     <div class="feature-chip">
         <span class="material-symbols-rounded">travel_explore</span>
-        Searches multiple sources
+        חיפוש ממקורות מרובים
     </div>
     <div class="feature-chip">
         <span class="material-symbols-rounded">analytics</span>
-        AI-powered analysis
+        ניתוח מבוסס AI
     </div>
     <div class="feature-chip">
         <span class="material-symbols-rounded">verified</span>
-        Price verification
+        אימות מחירים
     </div>
     <div class="feature-chip">
         <span class="material-symbols-rounded">shield</span>
-        Risk assessment
+        הערכת סיכונים
     </div>
     <div class="feature-chip">
         <span class="material-symbols-rounded">mail</span>
-        Email reports
+        דוחות במייל
     </div>
 </section>
 
@@ -72,20 +72,20 @@
 <div id="loading-overlay" class="loading-overlay">
     <div class="loading-card">
         <div class="loading-spinner"></div>
-        <h3>Finding the best deals</h3>
-        <p>Our AI agents are searching the web for you</p>
+        <h3>מחפשים את העסקאות הטובות ביותר</h3>
+        <p>סוכני ה-AI שלנו סורקים את האינטרנט עבורכם</p>
         <div class="loading-stages">
             <div class="loading-stage active" id="stage-search">
                 <span class="material-symbols-rounded">pending</span>
-                Searching retailers &amp; suppliers...
+                מחפשים בחנויות וספקים...
             </div>
             <div class="loading-stage" id="stage-analyze">
                 <span class="material-symbols-rounded">circle</span>
-                Analyzing &amp; comparing prices...
+                מנתחים ומשווים מחירים...
             </div>
             <div class="loading-stage" id="stage-rank">
                 <span class="material-symbols-rounded">circle</span>
-                Ranking top deals...
+                מדרגים את העסקאות המובילות...
             </div>
         </div>
     </div>

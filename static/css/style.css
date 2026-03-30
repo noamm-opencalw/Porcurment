@@ -951,6 +951,32 @@ a:hover { text-decoration: underline; }
     to { transform: translateX(0); opacity: 1; }
 }
 
+/* ---- RTL Support ---- */
+[dir="rtl"] .search-box .search-icon {
+    padding-left: 0;
+    padding-right: 16px;
+}
+
+[dir="rtl"] .score-bar-label {
+    text-align: left;
+}
+
+[dir="rtl"] .comparison-table th {
+    text-align: right;
+}
+
+[dir="rtl"] .history-card:hover {
+    transform: translateX(-4px);
+}
+
+[dir="rtl"] .history-card-arrow {
+    transform: scaleX(-1);
+}
+
+[dir="rtl"] .loading-stages {
+    text-align: right;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
     .hero h1 { font-size: 2rem; }

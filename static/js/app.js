@@ -91,7 +91,7 @@ function showToast(message, duration = 3000) {
 // ---- Export CSV ----
 function exportCSV(searchId) {
     window.location.href = `/export/${searchId}`;
-    showToast('Downloading CSV...');
+    showToast('מוריד CSV...');
 }
 
 // ---- Score bar animation ----

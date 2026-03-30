@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Results{% endblock %}
+{% block title %}תוצאות{% endblock %}
 
 {% block content %}
 <!-- Header -->
 <div class="results-header">
-    <h1>Deal Recommendations</h1>
-    <p class="query-label">Results for <strong>{{ product_query }}</strong></p>
+    <h1>המלצות עסקאות</h1>
+    <p class="query-label">תוצאות עבור <strong>{{ product_query }}</strong></p>
 </div>
 
 <!-- Error state -->
@@ -13,14 +13,14 @@
 <div class="summary-card" style="background: var(--md-error-container); color: var(--md-error);">
     <div class="summary-label">
         <span class="material-symbols-rounded">error</span>
-        Error
+        שגיאה
     </div>
     <p>{{ error }}</p>
 </div>
 <div style="text-align: center; margin-top: 24px;">
     <a href="{{ url_for('home') }}" class="btn btn-filled">
         <span class="material-symbols-rounded">arrow_back</span>
-        Try Again
+        נסו שוב
     </a>
 </div>
 {% else %}
@@ -30,7 +30,7 @@
 <div class="summary-card">
     <div class="summary-label">
         <span class="material-symbols-rounded">auto_awesome</span>
-        Executive Summary
+        סיכום מנהלים
     </div>
     <p>{{ summary }}</p>
 </div>
@@ -48,21 +48,21 @@
             </div>
             <div class="deal-price">
                 {% if deal.price_numeric %}
-                    ${{ "%.2f"|format(deal.price_numeric) }}
+                    ₪{{ "%.2f"|format(deal.price_numeric) }}
                 {% elif deal.price %}
                     {{ deal.price }}
                 {% else %}
-                    N/A
+                    לא זמין
                 {% endif %}
             </div>
         </div>
 
         <!-- Body -->
         <div class="deal-card-body">
-            <h3 class="deal-title">{{ deal.title or 'Unknown Product' }}</h3>
+            <h3 class="deal-title">{{ deal.title or 'מוצר לא ידוע' }}</h3>
             <div class="deal-seller">
                 <span class="material-symbols-rounded" style="font-size: 14px;">store</span>
-                {{ deal.seller or 'Unknown Seller' }}
+                {{ deal.seller or 'מוכר לא ידוע' }}
             </div>
 
             <!-- Badges -->
@@ -76,21 +76,21 @@
                     {% else %}
                         <span class="material-symbols-rounded" style="font-size:14px">block</span>
                     {% endif %}
-                    {{ verdict }}
+                    {% if verdict == 'BUY' %}לקנות{% elif verdict == 'NEGOTIATE' %}לנהל מו״מ{% else %}לוותר{% endif %}
                 </span>
                 {% set risk = (deal.risk_level or 'medium')|lower %}
                 <span class="badge badge-risk-{{ risk }}">
-                    Risk: {{ risk }}
+                    סיכון: {% if risk == 'low' %}נמוך{% elif risk == 'medium' %}בינוני{% else %}גבוה{% endif %}
                 </span>
             </div>
 
             <!-- Description -->
-            <p class="deal-description">{{ deal.description or 'No description available.' }}</p>
+            <p class="deal-description">{{ deal.description or 'אין תיאור זמין.' }}</p>
 
             <!-- Explanation -->
             {% if deal.explanation %}
             <div class="explanation-box">
-                <div class="label">Why this deal?</div>
+                <div class="label">למה העסקה הזו?</div>
                 <p>{{ deal.explanation }}</p>
             </div>
             {% endif %}
@@ -104,7 +104,7 @@
                 </div>
                 {% if deal.score_breakdown %}
                 <div class="score-bars">
-                    {% set labels = {'price': 'Price', 'reliability': 'Reliability', 'total_cost': 'Cost', 'authenticity': 'Authentic', 'protection': 'Protection'} %}
+                    {% set labels = {'price': 'מחיר', 'reliability': 'אמינות', 'total_cost': 'עלות כוללת', 'authenticity': 'מקוריות', 'protection': 'הגנה'} %}
                     {% for key, label in labels.items() %}
                     {% set val = deal.score_breakdown.get(key, 5) %}
                     <div class="score-bar-row">
@@ -144,7 +144,7 @@
             {% if deal.url %}
             <a href="{{ deal.url }}" target="_blank" rel="noopener" class="btn btn-filled">
                 <span class="material-symbols-rounded">open_in_new</span>
-                View Deal
+                צפה בעסקה
             </a>
             {% endif %}
         </div>
@@ -155,18 +155,18 @@
 <!-- Comparison Table -->
 {% if deals|length > 0 %}
 <div class="comparison-section">
-    <h2>All Deals Comparison</h2>
+    <h2>השוואת כל העסקאות</h2>
     <div class="comparison-table-wrapper">
         <table class="comparison-table">
             <thead>
                 <tr>
-                    <th>Rank</th>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Seller</th>
-                    <th>Verdict</th>
-                    <th>Score</th>
-                    <th>Risk</th>
+                    <th>דירוג</th>
+                    <th>מוצר</th>
+                    <th>מחיר</th>
+                    <th>מוכר</th>
+                    <th>המלצה</th>
+                    <th>ציון</th>
+                    <th>סיכון</th>
                 </tr>
             </thead>
             <tbody>
@@ -175,17 +175,17 @@
                     <td><strong>#{{ deal.rank or loop.index }}</strong></td>
                     <td>{{ (deal.title or '')[:50] }}{% if (deal.title or '')|length > 50 %}...{% endif %}</td>
                     <td style="font-weight: 600; color: var(--md-success);">
-                        {% if deal.price_numeric %}${{ "%.2f"|format(deal.price_numeric) }}{% elif deal.price %}{{ deal.price }}{% else %}N/A{% endif %}
+                        {% if deal.price_numeric %}₪{{ "%.2f"|format(deal.price_numeric) }}{% elif deal.price %}{{ deal.price }}{% else %}לא זמין{% endif %}
                     </td>
-                    <td>{{ deal.seller or 'N/A' }}</td>
+                    <td>{{ deal.seller or 'לא זמין' }}</td>
                     <td>
                         {% set v = (deal.verdict or 'PASS')|upper %}
-                        <span class="badge badge-{{ v|lower }}">{{ v }}</span>
+                        <span class="badge badge-{{ v|lower }}">{% if v == 'BUY' %}לקנות{% elif v == 'NEGOTIATE' %}מו״מ{% else %}לוותר{% endif %}</span>
                     </td>
                     <td>{{ deal.total_score|default('-', true) }}</td>
                     <td>
                         {% set r = (deal.risk_level or 'medium')|lower %}
-                        <span class="badge badge-risk-{{ r }}">{{ r }}</span>
+                        <span class="badge badge-risk-{{ r }}">{% if r == 'low' %}נמוך{% elif r == 'medium' %}בינוני{% else %}גבוה{% endif %}</span>
                     </td>
                 </tr>
                 {% endfor %}
@@ -199,17 +199,17 @@
 <div class="actions-bar">
     <a href="{{ url_for('home') }}" class="btn btn-outlined">
         <span class="material-symbols-rounded">search</span>
-        New Search
+        חיפוש חדש
     </a>
     {% if search_id %}
     <button class="btn btn-tonal" onclick="exportCSV({{ search_id }})">
         <span class="material-symbols-rounded">download</span>
-        Export CSV
+        ייצוא CSV
     </button>
     {% endif %}
     <a href="{{ url_for('history') }}" class="btn btn-outlined">
         <span class="material-symbols-rounded">history</span>
-        View History
+        צפה בהיסטוריה
     </a>
 </div>
 

@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}History{% endblock %}
+{% block title %}היסטוריה{% endblock %}
 
 {% block content %}
 <div class="history-header">
-    <h1>Search History</h1>
-    <p>Your past procurement searches and saved recommendations</p>
+    <h1>היסטוריית חיפושים</h1>
+    <p>החיפושים הקודמים שלכם וההמלצות השמורות</p>
 </div>
 
 {% if searches %}
@@ -25,28 +25,28 @@
             <div class="history-card-meta">
                 <span>
                     {% if search.status == 'completed' %}
-                        {{ search.deals_found }} deal{{ 's' if search.deals_found != 1 else '' }} found
+                        נמצאו {{ search.deals_found }} עסקאות
                     {% elif search.status == 'failed' %}
-                        Search failed
+                        החיפוש נכשל
                     {% else %}
-                        In progress...
+                        בתהליך...
                     {% endif %}
                 </span>
-                <span>{{ search.started_at.strftime('%b %d, %Y at %I:%M %p') if search.started_at else '' }}</span>
+                <span>{{ search.started_at.strftime('%d/%m/%Y בשעה %H:%M') if search.started_at else '' }}</span>
             </div>
         </div>
-        <span class="material-symbols-rounded history-card-arrow">chevron_right</span>
+        <span class="material-symbols-rounded history-card-arrow">chevron_left</span>
     </a>
     {% endfor %}
 </div>
 {% else %}
 <div class="empty-state">
     <span class="material-symbols-rounded">inbox</span>
-    <h3>No searches yet</h3>
-    <p>Start by searching for a product to find the best deals.</p>
+    <h3>אין חיפושים עדיין</h3>
+    <p>התחילו בחיפוש מוצר כדי למצוא את העסקאות הטובות ביותר.</p>
     <a href="{{ url_for('home') }}" class="btn btn-filled" style="margin-top: 20px;">
         <span class="material-symbols-rounded">search</span>
-        Start Searching
+        התחילו לחפש
     </a>
 </div>
 {% endif %}

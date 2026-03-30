@@ -64,7 +64,7 @@ def search():
                 summary=None,
                 deals=[],
                 search_id=None,
-                error="Could not parse the AI output. The raw response has been saved.",
+                error="לא ניתן לעבד את תוצאות ה-AI. התגובה הגולמית נשמרה.",
             )
 
     except Exception as e:
@@ -106,7 +106,7 @@ def view_results(search_id):
                 "rank": d.rank or i + 1,
                 "title": d.title,
                 "description": d.description,
-                "price": f"${d.price:,.2f}" if d.price else "N/A",
+                "price": f"₪{d.price:,.2f}" if d.price else "לא זמין",
                 "price_numeric": d.price,
                 "url": d.url,
                 "phone": d.phone,
@@ -129,7 +129,7 @@ def view_results(search_id):
             summary=search_result.recommendation_summary if search_result else None,
             deals=deal_list,
             search_id=search_id,
-            error=None if search.status == "completed" else "This search did not complete successfully.",
+            error=None if search.status == "completed" else "החיפוש לא הושלם בהצלחה.",
         )
     finally:
         session.close()
@@ -167,14 +167,14 @@ def export_csv(search_id):
         output = io.StringIO()
         writer = csv.writer(output)
         writer.writerow([
-            "Rank", "Title", "Price", "Seller", "URL", "Phone",
-            "Verdict", "Score", "Risk", "Explanation",
+            "דירוג", "שם מוצר", "מחיר", "מוכר", "קישור", "טלפון",
+            "המלצה", "ציון", "סיכון", "הסבר",
         ])
         for d in deals:
             writer.writerow([
                 d.rank,
                 d.title,
-                f"${d.price:.2f}" if d.price else "N/A",
+                f"₪{d.price:.2f}" if d.price else "לא זמין",
                 d.seller,
                 d.url,
                 d.phone,

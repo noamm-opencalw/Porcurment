@@ -1,122 +1,130 @@
-/* Porcurment — Main App JavaScript */
+/* Porcurment — SPA Router & App Shell */
 
-// ---- Suggestion chips ----
-function fillSearch(text) {
-    const input = document.getElementById('search-input');
-    if (input) {
-        input.value = text;
-        input.focus();
+import { icon } from './icons.js';
+import {
+  renderHome, initHome,
+  renderResults, initResults,
+  renderHistory, initHistory,
+} from './views.js';
+
+// =============================
+// ROUTER
+// =============================
+const routes = [
+  { pattern: /^#?\/?$/, view: 'home' },
+  { pattern: /^#\/results(?:\?(.*))?$/, view: 'results' },
+  { pattern: /^#\/results\/(\d+)$/, view: 'results' },
+  { pattern: /^#\/history$/, view: 'history' },
+];
+
+function matchRoute(hash) {
+  const h = hash || '#/';
+  for (const route of routes) {
+    const match = h.match(route.pattern);
+    if (match) return { view: route.view, params: match.slice(1) };
+  }
+  return { view: 'home', params: [] };
+}
+
+function getQueryParam(paramString, key) {
+  if (!paramString) return null;
+  const params = new URLSearchParams(paramString);
+  return params.get(key);
+}
+
+async function navigate() {
+  const { view, params } = matchRoute(window.location.hash);
+  const app = document.getElementById('app');
+
+  switch (view) {
+    case 'home':
+      app.innerHTML = renderHome();
+      initHome();
+      break;
+    case 'results': {
+      const query = getQueryParam(params[0], 'q') || 'Noise Cancelling Headphones';
+      app.innerHTML = renderResults(query);
+      initResults();
+      break;
     }
+    case 'history':
+      app.innerHTML = renderHistory();
+      initHistory();
+      break;
+    default:
+      app.innerHTML = renderHome();
+      initHome();
+  }
+
+  updateNav(view);
+  window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
-// ---- Loading overlay ----
-const stages = ['search', 'analyze', 'rank'];
-let currentStage = 0;
-let stageInterval = null;
-
-function showLoading() {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) {
-        overlay.classList.add('active');
-        currentStage = 0;
-        updateStages();
-        stageInterval = setInterval(() => {
-            currentStage++;
-            if (currentStage >= stages.length) {
-                currentStage = stages.length - 1;
-            }
-            updateStages();
-        }, 8000);
-    }
+// =============================
+// NAV HIGHLIGHTING
+// =============================
+function updateNav(activeView) {
+  document.querySelectorAll('.bottom-nav__item').forEach(item => {
+    item.classList.toggle('active', item.dataset.view === activeView);
+  });
+  document.querySelectorAll('.header__nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.view === activeView);
+  });
 }
 
-function hideLoading() {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) {
-        overlay.classList.remove('active');
-    }
-    if (stageInterval) {
-        clearInterval(stageInterval);
-        stageInterval = null;
-    }
+// =============================
+// APP SHELL
+// =============================
+function createAppShell() {
+  // Header
+  const header = document.querySelector('.header__inner');
+  if (header) {
+    header.innerHTML = `
+      <a class="header__brand" onclick="window.location.hash='#/'">
+        ${icon('shopping_cart', 28)}
+        <span class="header__brand-text">Porcurment</span>
+      </a>
+      <nav class="header__nav">
+        <a class="header__nav-item" data-view="home" onclick="window.location.hash='#/'">
+          ${icon('search', 20)} Search
+        </a>
+        <a class="header__nav-item" data-view="results" onclick="window.location.hash='#/results'">
+          ${icon('analytics', 20)} Results
+        </a>
+        <a class="header__nav-item" data-view="history" onclick="window.location.hash='#/history'">
+          ${icon('history', 20)} History
+        </a>
+      </nav>
+    `;
+  }
+
+  // Bottom nav (mobile)
+  const bottomNav = document.getElementById('bottom-nav');
+  if (bottomNav) {
+    bottomNav.innerHTML = `
+      <a class="bottom-nav__item" data-view="home" onclick="window.location.hash='#/'">
+        ${icon('search')}
+        <span>Search</span>
+      </a>
+      <a class="bottom-nav__item" data-view="results" onclick="window.location.hash='#/results'">
+        ${icon('analytics')}
+        <span>Results</span>
+      </a>
+      <a class="bottom-nav__item" data-view="history" onclick="window.location.hash='#/history'">
+        ${icon('history')}
+        <span>History</span>
+      </a>
+    `;
+  }
 }
 
-function updateStages() {
-    stages.forEach((stage, i) => {
-        const el = document.getElementById(`stage-${stage}`);
-        if (!el) return;
-        el.classList.remove('active', 'done');
-        if (i < currentStage) {
-            el.classList.add('done');
-            const icon = el.querySelector('.material-symbols-rounded');
-            if (icon) icon.textContent = 'check_circle';
-        } else if (i === currentStage) {
-            el.classList.add('active');
-            const icon = el.querySelector('.material-symbols-rounded');
-            if (icon) icon.textContent = 'pending';
-        }
-    });
+// =============================
+// INIT
+// =============================
+function init() {
+  createAppShell();
+  navigate();
+  window.addEventListener('hashchange', navigate);
 }
 
-// ---- Form submission with loading ----
-function handleSearchSubmit(event) {
-    const input = document.getElementById('search-input');
-    if (!input || !input.value.trim()) {
-        event.preventDefault();
-        input.focus();
-        return false;
-    }
-    showLoading();
-    return true;
-}
-
-// ---- Toast notifications ----
-function showToast(message, duration = 3000) {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    container.appendChild(toast);
-
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(100%)';
-        toast.style.transition = 'all 300ms ease';
-        setTimeout(() => toast.remove(), 300);
-    }, duration);
-}
-
-// ---- Export CSV ----
-function exportCSV(searchId) {
-    window.location.href = `/export/${searchId}`;
-    showToast('Downloading CSV...');
-}
-
-// ---- Score bar animation ----
-function animateScoreBars() {
-    const bars = document.querySelectorAll('.score-bar-fill');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const bar = entry.target;
-                const width = bar.dataset.width;
-                setTimeout(() => {
-                    bar.style.width = width + '%';
-                }, 100);
-                observer.unobserve(bar);
-            }
-        });
-    }, { threshold: 0.1 });
-
-    bars.forEach(bar => {
-        bar.style.width = '0%';
-        observer.observe(bar);
-    });
-}
-
-// ---- Init ----
-document.addEventListener('DOMContentLoaded', () => {
-    animateScoreBars();
-});
+document.addEventListener('DOMContentLoaded', init);

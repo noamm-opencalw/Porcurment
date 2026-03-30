@@ -41,7 +41,7 @@ class Deal(Base):
     title = Column(Text)
     description = Column(Text)
     price = Column(Float, nullable=True)
-    currency = Column(String(10), default="USD")
+    currency = Column(String(10), default="ILS")
     url = Column(String(1000))
     seller = Column(String(200))
     phone = Column(String(50), default="N/A")

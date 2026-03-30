@@ -32,18 +32,20 @@ def create_deal_hunter() -> Agent:
     return Agent(
         role="Procurement Deal Hunter",
         goal=(
-            "Search the internet exhaustively to find the 10 best deals for a given product. "
-            "Use multiple search queries, variations, and sources. Look at major retailers, "
-            "wholesale suppliers, marketplace listings, and B2B platforms. Focus on finding "
-            "real, currently available deals with verifiable prices."
+            "Search the internet exhaustively to find the 10 best deals for a given product "
+            "available in Israel. Use multiple search queries, variations, and sources. "
+            "Look at Israeli retailers (KSP, Ivory, Bug, Zap, Amazon.co.il), international "
+            "retailers that ship to Israel, wholesale suppliers, and B2B platforms. "
+            "Focus on finding real, currently available deals with verifiable prices in ILS or USD."
         ),
         backstory=(
             "You are a veteran procurement specialist with 15 years in supply chain "
-            "management for Fortune 500 companies. You know every sourcing trick: "
-            "searching by manufacturer part number, checking liquidation sites, "
-            "comparing authorized distributors vs gray market, and timing purchases "
-            "around seasonal sales. You search systematically — first broad, then "
-            "narrow — and you never settle for the first page of results."
+            "management, specializing in the Israeli market. You know every sourcing trick: "
+            "searching by manufacturer part number, checking Israeli price comparison sites "
+            "like Zap and Pricez, comparing authorized Israeli distributors, and timing "
+            "purchases around sales events. You search systematically — first Israeli "
+            "sources, then international ones that ship to Israel — and you always factor "
+            "in import duties, VAT (מע״מ), and shipping costs to Israel."
         ),
         llm=llm_default,
         tools=[WebSearchTool(), DealScraperTool()],

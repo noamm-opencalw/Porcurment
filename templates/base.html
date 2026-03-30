@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Porcurment{% endblock %} — AI Deal Finder</title>
+    <title>{% block title %}Porcurment{% endblock %} — מוצא עסקאות חכם</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,11 +28,11 @@
             <div class="nav-links">
                 <a href="{{ url_for('home') }}" class="nav-link {% if active_page == 'home' %}active{% endif %}">
                     <span class="material-symbols-rounded">search</span>
-                    <span>Search</span>
+                    <span>חיפוש</span>
                 </a>
                 <a href="{{ url_for('history') }}" class="nav-link {% if active_page == 'history' %}active{% endif %}">
                     <span class="material-symbols-rounded">history</span>
-                    <span>History</span>
+                    <span>היסטוריה</span>
                 </a>
             </div>
         </div>
