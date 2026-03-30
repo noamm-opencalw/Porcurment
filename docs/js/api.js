@@ -1,8 +1,6 @@
 /* פורקורמנט — API Client & Data Layer */
 
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:8080'
-  : 'https://porcurment-production.up.railway.app';
+const API_BASE = '';
 
 // ---- API calls ----
 

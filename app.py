@@ -5,12 +5,14 @@ import io
 import json
 from datetime import datetime, timezone
 
-from flask import Flask, Response, jsonify, redirect, request
+from flask import Flask, Response, jsonify, request
 
 from src.db.models import Deal, SearchQuery, SearchResult, get_session, init_db
 from src.flows.main_flow import ProcurementFlow
 
-app = Flask(__name__)
+import os
+
+app = Flask(__name__, static_folder="docs", static_url_path="")
 
 
 # ---- CORS (allow SPA from docs/ to call API) ----
@@ -152,30 +154,11 @@ def api_results(search_id):
         session.close()
 
 
-# ---- Redirect non-API routes to GitHub Pages SPA ----
-
-FRONTEND_URL = "https://noamm-opencalw.github.io/Porcurment"
-
+# ---- Serve SPA frontend ----
 
 @app.route("/")
 def home():
-    return redirect(FRONTEND_URL)
-
-
-@app.route("/search")
-@app.route("/search", methods=["POST"])
-def search():
-    return redirect(FRONTEND_URL)
-
-
-@app.route("/results/<int:search_id>")
-def view_results(search_id):
-    return redirect(f"{FRONTEND_URL}/#/results/{search_id}")
-
-
-@app.route("/history")
-def history():
-    return redirect(f"{FRONTEND_URL}/#/history")
+    return app.send_static_file("index.html")
 
 
 @app.route("/export/<int:search_id>")
