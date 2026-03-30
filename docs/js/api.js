@@ -21,6 +21,145 @@ export async function getSearchResult(searchId) {
   return resp.json();
 }
 
+// ---- Shared state for passing results between views ----
+export const searchState = {
+  query: null,
+  refinedQuery: null,
+  deals: null,
+  allDeals: null,
+  summary: null,
+};
+
+// ---- Clarification questions by product category ----
+export const CLARIFICATION_RULES = [
+  {
+    keywords: ['chair', 'כיסא'],
+    question: 'What is the chair for?',
+    options: [
+      { label: 'Office / Computer', value: 'ergonomic office chair' },
+      { label: 'Dining room', value: 'dining chair' },
+      { label: 'Bar', value: 'bar stool chair' },
+      { label: 'Gaming', value: 'gaming chair' },
+      { label: 'Outdoor / Garden', value: 'outdoor garden chair' },
+    ],
+  },
+  {
+    keywords: ['desk', 'שולחן'],
+    question: 'What type of desk?',
+    options: [
+      { label: 'Standing desk', value: 'standing desk' },
+      { label: 'Computer desk', value: 'computer desk' },
+      { label: 'Office desk', value: 'office desk' },
+      { label: 'Dining table', value: 'dining table' },
+      { label: 'Kids desk', value: 'kids study desk' },
+    ],
+  },
+  {
+    keywords: ['keyboard', 'מקלדת'],
+    question: 'What kind of keyboard?',
+    options: [
+      { label: 'Mechanical', value: 'mechanical keyboard' },
+      { label: 'Wireless', value: 'wireless keyboard' },
+      { label: 'Ergonomic', value: 'ergonomic split keyboard' },
+      { label: 'Gaming', value: 'gaming keyboard RGB' },
+      { label: 'Compact / 60%', value: 'compact 60% keyboard' },
+    ],
+  },
+  {
+    keywords: ['monitor', 'מסך'],
+    question: 'What will the monitor be used for?',
+    options: [
+      { label: 'Office work', value: 'office monitor IPS' },
+      { label: 'Gaming', value: 'gaming monitor 144Hz' },
+      { label: 'Design / Video', value: 'color-accurate monitor 4K' },
+      { label: 'Ultrawide', value: 'ultrawide curved monitor' },
+      { label: 'Portable', value: 'portable USB-C monitor' },
+    ],
+  },
+  {
+    keywords: ['headphones', 'אוזניות'],
+    question: 'What type of headphones?',
+    options: [
+      { label: 'Noise cancelling', value: 'noise cancelling headphones' },
+      { label: 'Wireless earbuds', value: 'wireless earbuds TWS' },
+      { label: 'Gaming headset', value: 'gaming headset with mic' },
+      { label: 'Studio / Pro', value: 'studio monitor headphones' },
+      { label: 'Sports / Running', value: 'sports wireless earbuds waterproof' },
+    ],
+  },
+  {
+    keywords: ['mouse', 'עכבר'],
+    question: 'What kind of mouse?',
+    options: [
+      { label: 'Ergonomic', value: 'ergonomic vertical mouse' },
+      { label: 'Gaming', value: 'gaming mouse' },
+      { label: 'Wireless office', value: 'wireless office mouse' },
+      { label: 'Trackball', value: 'trackball mouse' },
+    ],
+  },
+  {
+    keywords: ['laptop', 'מחשב נייד', 'לפטופ'],
+    question: 'What will the laptop be used for?',
+    options: [
+      { label: 'Development / Work', value: 'laptop for programming 16GB RAM' },
+      { label: 'Student / Light use', value: 'lightweight student laptop' },
+      { label: 'Gaming', value: 'gaming laptop RTX' },
+      { label: 'Video editing', value: 'laptop for video editing' },
+      { label: 'Budget', value: 'budget laptop under 2000 ILS' },
+    ],
+  },
+  {
+    keywords: ['camera', 'מצלמה'],
+    question: 'What type of camera?',
+    options: [
+      { label: 'Security / CCTV', value: 'security camera WiFi' },
+      { label: 'Mirrorless', value: 'mirrorless camera' },
+      { label: 'Webcam', value: 'webcam 1080p' },
+      { label: 'Action cam', value: 'action camera waterproof' },
+    ],
+  },
+  {
+    keywords: ['printer', 'מדפסת'],
+    question: 'What type of printer?',
+    options: [
+      { label: 'Home / Inkjet', value: 'inkjet color printer' },
+      { label: 'Office / Laser', value: 'laser printer' },
+      { label: 'Photo printer', value: 'photo printer' },
+      { label: '3D printer', value: '3D printer' },
+    ],
+  },
+  {
+    keywords: ['light', 'תאורה', 'מנורה'],
+    question: 'What kind of lighting?',
+    options: [
+      { label: 'Desk lamp', value: 'LED desk lamp' },
+      { label: 'Smart lighting', value: 'smart LED bulbs' },
+      { label: 'Ring light', value: 'ring light for streaming' },
+      { label: 'Ceiling / Room', value: 'LED ceiling light' },
+    ],
+  },
+];
+
+/**
+ * Check if a query is generic enough to need clarification.
+ * Returns a matching rule or null.
+ */
+export function findClarification(query) {
+  const q = query.toLowerCase().trim();
+  // Don't ask clarification if the query is already long/specific (3+ words)
+  const wordCount = q.split(/\s+/).length;
+  if (wordCount >= 3) return null;
+
+  for (const rule of CLARIFICATION_RULES) {
+    for (const kw of rule.keywords) {
+      if (q.includes(kw.toLowerCase())) {
+        return rule;
+      }
+    }
+  }
+  return null;
+}
+
 // ---- Demo data ----
 
 export const DEMO_DEALS = [

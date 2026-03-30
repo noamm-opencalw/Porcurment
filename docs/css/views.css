@@ -54,6 +54,11 @@
 .results-header { margin-bottom: 20px; }
 .results-header .query-label { font-size: 1rem; color: var(--md-on-surface-variant); }
 .results-header .query-label strong { color: var(--md-primary); }
+.results-header .query-refined {
+  font-size: 0.8rem;
+  color: var(--md-on-surface-variant);
+  margin-top: 4px;
+}
 
 .summary-card {
   background: var(--md-primary-container);

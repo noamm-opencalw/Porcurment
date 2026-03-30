@@ -10,7 +10,7 @@ load_dotenv(PROJECT_ROOT / ".env")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDCW3Pa05zL6oDAU2vMBz7fxJs6GL4I2bM")
 # Claude OAuth — run: claude auth token  to get your token
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-BRAVE_API_KEY = os.getenv("BRAVE_API_KEY", "")
+# Serper.dev — primary search provider (used by SerperDevTool or direct API)
 SERPER_API_KEY = os.getenv("SERPER_API_KEY", "")
 
 # --- Email SMTP ---

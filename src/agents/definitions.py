@@ -11,18 +11,17 @@ from src.tools.email_tool import EmailTool
 from src.tools.price_comparator import PriceComparatorTool
 from src.tools.web_search import WebSearchTool
 
-# Default: Gemini
-llm_default = LLM(
-    model=CREWAI_DEFAULT_MODEL,
-    api_key=GEMINI_API_KEY,
-)
-# Premium & Cheap: Claude via Anthropic OAuth (uses ANTHROPIC_API_KEY env var)
-llm_premium = LLM(
-    model=CREWAI_PREMIUM_MODEL,
-)
-llm_cheap = LLM(
-    model=CREWAI_CHEAP_MODEL,
-)
+# ----- LLM instances -----
+# Default: Gemini (fast & cheap for search tasks)
+llm_default = LLM(model=CREWAI_DEFAULT_MODEL, api_key=GEMINI_API_KEY)
+# Premium & Cheap: Claude via Anthropic (uses ANTHROPIC_API_KEY env var)
+llm_premium = LLM(model=CREWAI_PREMIUM_MODEL)
+llm_cheap = LLM(model=CREWAI_CHEAP_MODEL)
+
+# ----- Shared tool instances (reuse across agents) -----
+_web_search = WebSearchTool()
+_deal_scraper = DealScraperTool()
+_price_comparator = PriceComparatorTool()
 
 
 def create_deal_hunter() -> Agent:
@@ -45,7 +44,7 @@ def create_deal_hunter() -> Agent:
             "in import duties, VAT (מע״מ), and shipping costs to Israel."
         ),
         llm=llm_default,
-        tools=[WebSearchTool(), DealScraperTool()],
+        tools=[_web_search, _deal_scraper],
         memory=False,
         verbose=True,
         max_iter=12,
@@ -72,7 +71,7 @@ def create_deal_analyst() -> Agent:
             "your evaluations are data-driven and include a clear scoring rubric."
         ),
         llm=llm_premium,
-        tools=[WebSearchTool(), PriceComparatorTool()],
+        tools=[_web_search, _price_comparator],
         memory=False,
         verbose=True,
         max_iter=8,
@@ -122,7 +121,7 @@ def create_procurement_lead() -> Agent:
             "assessment and a suggested negotiation strategy."
         ),
         llm=llm_premium,
-        tools=[WebSearchTool(), PriceComparatorTool()],
+        tools=[_web_search, _price_comparator],
         memory=False,
         verbose=True,
         max_iter=6,

@@ -2,7 +2,7 @@
 
 import { icon } from './icons.js';
 import { renderDealCard, renderHistoryCard, renderComparisonTable, animateScoreBars, showLoading, hideLoading, showToast } from './components.js';
-import { DEMO_DEALS, DEMO_SUMMARY, DEMO_ALL_DEALS, DEMO_HISTORY } from './api.js';
+import { DEMO_DEALS, DEMO_SUMMARY, DEMO_ALL_DEALS, DEMO_HISTORY, searchState, findClarification } from './api.js';
 
 window.__toast = showToast;
 
@@ -51,17 +51,91 @@ export function renderHome() {
     </div>`;
 }
 
+function startSearch(query) {
+  // Store the refined query and generate demo results for it
+  // searchState.query may already be set by clarification dialog (original query)
+  if (!searchState.query) searchState.query = query;
+  searchState.refinedQuery = query;
+  searchState.deals = DEMO_DEALS;
+  searchState.allDeals = DEMO_ALL_DEALS;
+  searchState.summary = `Analyzed 10 deals from major retailers for "${query}". Top picks include free shipping and buyer protection.`;
+
+  showLoading('Finding best deals', `Searching "${query}"...`);
+  setTimeout(() => {
+    hideLoading();
+    window.location.hash = `#/results?q=${encodeURIComponent(query)}`;
+  }, 2800);
+}
+
+function showClarificationDialog(originalQuery, rule) {
+  const existing = document.getElementById('clarification-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'clarification-overlay';
+  overlay.className = 'clarification-overlay active';
+  overlay.innerHTML = `
+    <div class="clarification-card">
+      <div class="clarification-card__icon">
+        ${icon('help', 32)}
+      </div>
+      <h3 class="clarification-card__title">${rule.question}</h3>
+      <p class="clarification-card__subtitle">You searched for <strong>"${originalQuery}"</strong> — help us find exactly what you need:</p>
+      <div class="clarification-options" id="clarification-options">
+        ${rule.options.map(opt => `
+          <button class="clarification-option" data-value="${opt.value}">
+            ${opt.label}
+          </button>
+        `).join('')}
+      </div>
+      <button class="btn btn-outlined clarification-skip" id="clarification-skip">
+        Search as is: "${originalQuery}"
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Handle option selection — save original query for display
+  document.getElementById('clarification-options')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.clarification-option');
+    if (!btn) return;
+    overlay.remove();
+    searchState.query = originalQuery;
+    startSearch(btn.dataset.value);
+  });
+
+  // Handle skip — original = refined
+  document.getElementById('clarification-skip')?.addEventListener('click', () => {
+    overlay.remove();
+    startSearch(originalQuery);
+  });
+
+  // Close on overlay background click
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
 export function initHome() {
   document.getElementById('search-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const input = document.getElementById('search-input');
     const q = input?.value.trim();
     if (!q) { input?.focus(); return; }
-    showLoading('Finding best deals', `Searching "${q}"...`);
-    setTimeout(() => {
-      hideLoading();
-      window.location.hash = `#/results?q=${encodeURIComponent(q)}`;
-    }, 2800);
+
+    // Reset state for new search
+    searchState.query = null;
+    searchState.refinedQuery = null;
+
+    // Check if we need clarification
+    const rule = findClarification(q);
+    if (rule) {
+      showClarificationDialog(q, rule);
+    } else {
+      startSearch(q);
+    }
   });
 
   document.getElementById('suggestions')?.addEventListener('click', (e) => {
@@ -77,15 +151,20 @@ export function initHome() {
 // RESULTS VIEW
 // =====================
 export function renderResults(queryFromHash) {
-  const query = queryFromHash || 'noise cancelling headphones';
-  const deals = DEMO_DEALS;
-  const allDeals = DEMO_ALL_DEALS;
-  const summary = DEMO_SUMMARY;
+  const query = searchState.refinedQuery || queryFromHash || 'noise cancelling headphones';
+  const deals = searchState.deals || DEMO_DEALS;
+  const allDeals = searchState.allDeals || DEMO_ALL_DEALS;
+  const summary = searchState.summary || DEMO_SUMMARY;
+
+  // Show the original query if it was refined
+  const originalQuery = searchState.query;
+  const wasRefined = originalQuery && originalQuery !== query;
 
   return `
     <div class="view-enter">
       <div class="results-header">
         <p class="query-label">Results for <strong>${query}</strong></p>
+        ${wasRefined ? `<p class="query-refined">Original search: "${originalQuery}" &rarr; refined to "${query}"</p>` : ''}
       </div>
 
       <div class="summary-card">
