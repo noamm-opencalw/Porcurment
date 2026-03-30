@@ -266,8 +266,8 @@
 
 .history-card {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 8px;
   padding: 16px 20px;
   background: var(--md-surface);
   border: 1px solid var(--md-outline-variant);
@@ -276,13 +276,26 @@
   color: var(--md-on-surface);
   transition: box-shadow var(--duration-short) var(--motion-standard),
               border-color var(--duration-short) var(--motion-standard);
-  cursor: pointer;
 }
 
 .history-card:hover {
   box-shadow: var(--elevation-1);
   border-color: transparent;
   text-decoration: none;
+}
+
+.history-card__main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.history-card__research {
+  align-self: flex-end;
+  font-size: 12px;
+  padding: 4px 12px;
+  gap: 4px;
 }
 
 .history-card__icon {

@@ -232,10 +232,9 @@ export function renderResults(queryFromHash, searchId) {
         <a href="#/" class="btn btn-outlined">
           ${icon('search', 18)} חיפוש חדש
         </a>
-        ${searchState.searchId ? `
-          <a href="/export/${searchState.searchId}" class="btn btn-tonal" target="_blank">
-            ${icon('download', 18)} ייצוא CSV
-          </a>` : ''}
+        <button class="btn btn-tonal" id="re-search-btn" data-query="${query}">
+          ${icon('refresh', 18)} חפש מחדש
+        </button>
       </div>
     </div>`;
 }
@@ -258,6 +257,20 @@ export async function initResults(searchId) {
       console.error('Load results error:', err);
     }
   }
+
+  // Re-search button
+  document.getElementById('re-search-btn')?.addEventListener('click', (e) => {
+    const query = e.currentTarget.dataset.query;
+    if (query) {
+      searchState.query = null;
+      searchState.refinedQuery = null;
+      searchState.deals = null;
+      searchState.allDeals = null;
+      searchState.summary = null;
+      searchState.searchId = null;
+      startSearch(query);
+    }
+  });
 
   animateScoreBars();
 }
@@ -304,6 +317,28 @@ export async function initHistory() {
       <div class="history-list">
         ${searches.map(s => renderHistoryCard(s)).join('')}
       </div>`;
+
+    // Wire up re-search buttons
+    container.querySelectorAll('.history-card__research').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const query = e.currentTarget.dataset.query;
+        if (query) {
+          searchState.query = null;
+          searchState.refinedQuery = null;
+          searchState.deals = null;
+          searchState.allDeals = null;
+          searchState.summary = null;
+          searchState.searchId = null;
+          window.location.hash = '#/';
+          setTimeout(() => {
+            const input = document.getElementById('search-input');
+            if (input) { input.value = query; }
+            startSearch(query);
+          }, 100);
+        }
+      });
+    });
   } catch (err) {
     container.innerHTML = `
       <div class="empty-state">

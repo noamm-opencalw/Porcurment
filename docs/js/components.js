@@ -131,18 +131,23 @@ export function renderHistoryCard(search) {
                search.status === 'failed' ? 'נכשל' : 'רץ...';
 
   return `
-    <div class="history-card" data-id="${search.id}" onclick="window.location.hash='#/results/${search.id}'">
-      <div class="history-card__icon history-card__icon--${statusClass}">
-        ${icon(statusIcon)}
-      </div>
-      <div class="history-card__content">
-        <div class="history-card__query">${search.product_query}</div>
-        <div class="history-card__meta">
-          <span>${meta}</span>
-          <span>${dateStr}</span>
+    <div class="history-card" data-id="${search.id}">
+      <div class="history-card__main" onclick="window.location.hash='#/results/${search.id}'">
+        <div class="history-card__icon history-card__icon--${statusClass}">
+          ${icon(statusIcon)}
         </div>
+        <div class="history-card__content">
+          <div class="history-card__query">${search.product_query}</div>
+          <div class="history-card__meta">
+            <span>${meta}</span>
+            <span>${dateStr}</span>
+          </div>
+        </div>
+        <span class="material-symbols-rounded history-card__arrow">chevron_left</span>
       </div>
-      <span class="material-symbols-rounded history-card__arrow">chevron_left</span>
+      <button class="btn btn-tonal btn-sm history-card__research" data-query="${search.product_query}">
+        ${icon('refresh', 16)} חפש מחדש
+      </button>
     </div>`;
 }
 

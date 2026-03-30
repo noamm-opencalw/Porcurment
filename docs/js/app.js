@@ -13,7 +13,7 @@ import {
 const routes = [
   { pattern: /^#?\/?$/, view: 'home' },
   { pattern: /^#\/results(?:\?(.*))?$/, view: 'results' },
-  { pattern: /^#\/results\/(\d+)$/, view: 'results' },
+  { pattern: /^#\/results\/([a-zA-Z0-9-]+)$/, view: 'results' },
   { pattern: /^#\/history$/, view: 'history' },
 ];
 
