@@ -19,9 +19,9 @@ export function showToast(message, duration = 3000) {
 
 // ---- Loading overlay ----
 const STAGES = [
-  { key: 'search', label: 'Searching retailers & suppliers...' },
-  { key: 'analyze', label: 'Analyzing & comparing prices...' },
-  { key: 'rank', label: 'Ranking top deals...' },
+  { key: 'search', label: 'מחפשים בחנויות וספקים...' },
+  { key: 'analyze', label: 'מנתחים ומשווים מחירים...' },
+  { key: 'rank', label: 'מדרגים את העסקאות המובילות...' },
 ];
 
 let stageIndex = 0;
@@ -74,7 +74,9 @@ export function renderDealCard(deal) {
   const risk = (deal.risk_level || 'medium').toLowerCase();
   const breakdown = deal.score_breakdown || {};
 
-  const scoreLabels = { price: 'Price', reliability: 'Reliability', total_cost: 'Cost', authenticity: 'Authentic', protection: 'Protection' };
+  const verdictLabels = { BUY: 'לקנות', NEGOTIATE: 'לנהל מו״מ', PASS: 'לוותר' };
+  const riskLabels = { low: 'נמוך', medium: 'בינוני', high: 'גבוה' };
+  const scoreLabels = { price: 'מחיר', reliability: 'אמינות', total_cost: 'עלות כוללת', authenticity: 'מקוריות', protection: 'הגנה' };
 
   let scoreBarsHTML = '';
   for (const [key, label] of Object.entries(scoreLabels)) {
@@ -91,24 +93,24 @@ export function renderDealCard(deal) {
     <div class="deal-card">
       <div class="deal-card__header">
         <div class="deal-card__rank deal-card__rank--${rank}">#${rank}</div>
-        <div class="deal-card__price">${deal.price || 'N/A'}</div>
+        <div class="deal-card__price">${deal.price || 'לא זמין'}</div>
       </div>
       <div class="deal-card__body">
-        <h3 class="deal-card__title">${deal.title || 'Unknown Product'}</h3>
+        <h3 class="deal-card__title">${deal.title || 'מוצר לא ידוע'}</h3>
         <div class="deal-card__seller">
-          ${icon('store', 14)} ${deal.seller || 'Unknown'}
+          ${icon('store', 14)} ${deal.seller || 'לא ידוע'}
         </div>
         <div class="deal-card__badges">
           <span class="badge badge-${verdict.toLowerCase()}">
             ${icon(verdict === 'BUY' ? 'thumb_up' : verdict === 'NEGOTIATE' ? 'handshake' : 'block', 14)}
-            ${verdict}
+            ${verdictLabels[verdict] || 'לוותר'}
           </span>
-          <span class="badge badge-risk-${risk}">Risk: ${risk}</span>
+          <span class="badge badge-risk-${risk}">סיכון: ${riskLabels[risk] || 'בינוני'}</span>
         </div>
         <p class="deal-card__description">${deal.description || ''}</p>
         ${deal.explanation ? `
           <div class="deal-card__explanation">
-            <div class="deal-card__explanation-label">Why this deal?</div>
+            <div class="deal-card__explanation-label">למה העסקה הזו?</div>
             <p>${deal.explanation}</p>
           </div>` : ''}
         ${deal.total_score ? `
@@ -135,10 +137,10 @@ export function renderDealCard(deal) {
       <div class="deal-card__actions">
         ${deal.url && deal.url !== '#' ? `
           <a href="${deal.url}" target="_blank" rel="noopener" class="btn btn-filled">
-            ${icon('open_in_new', 18)} View Deal
+            ${icon('open_in_new', 18)} צפה בעסקה
           </a>` : `
-          <button class="btn btn-filled" onclick="window.__toast('Demo — this would open the deal page')">
-            ${icon('open_in_new', 18)} View Deal
+          <button class="btn btn-filled" onclick="window.__toast('דמו — בגרסה המלאה זה יפתח את דף העסקה')">
+            ${icon('open_in_new', 18)} צפה בעסקה
           </button>`}
       </div>
     </div>`;
@@ -150,10 +152,10 @@ export function renderHistoryCard(search) {
                      search.status === 'failed' ? 'error' : 'pending';
   const statusClass = search.status;
   const date = new Date(search.started_at);
-  const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
-                  ' at ' + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  const meta = search.status === 'completed' ? `${search.deals_found} deal${search.deals_found !== 1 ? 's' : ''} found` :
-               search.status === 'failed' ? 'Search failed' : 'In progress...';
+  const dateStr = date.toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' }) +
+                  ' בשעה ' + date.toLocaleTimeString('he-IL', { hour: 'numeric', minute: '2-digit' });
+  const meta = search.status === 'completed' ? `נמצאו ${search.deals_found} עסקאות` :
+               search.status === 'failed' ? 'החיפוש נכשל' : 'בתהליך...';
 
   return `
     <div class="history-card" data-id="${search.id}" onclick="window.location.hash='#/results/${search.id}'">
@@ -167,24 +169,27 @@ export function renderHistoryCard(search) {
           <span>${dateStr}</span>
         </div>
       </div>
-      <span class="material-symbols-rounded history-card__arrow">chevron_right</span>
+      <span class="material-symbols-rounded history-card__arrow">chevron_left</span>
     </div>`;
 }
 
 // ---- Comparison Table ----
 export function renderComparisonTable(deals) {
+  const verdictLabels = { BUY: 'לקנות', NEGOTIATE: 'מו״מ', PASS: 'לוותר' };
+  const riskLabels = { low: 'נמוך', medium: 'בינוני', high: 'גבוה' };
+
   const rows = deals.map(d => {
     const v = (d.verdict || 'PASS').toUpperCase();
     const r = (d.risk_level || 'medium').toLowerCase();
-    const price = d.price_numeric ? `$${d.price_numeric.toFixed(2)}` : (d.price || 'N/A');
+    const price = d.price_numeric ? `₪${d.price_numeric.toFixed(2)}` : (d.price || 'לא זמין');
     return `<tr>
       <td><strong>#${d.rank || ''}</strong></td>
       <td>${(d.title || '').substring(0, 50)}${(d.title || '').length > 50 ? '...' : ''}</td>
       <td style="font-weight:600;color:var(--md-success)">${price}</td>
-      <td>${d.seller || 'N/A'}</td>
-      <td><span class="badge badge-${v.toLowerCase()}">${v}</span></td>
+      <td>${d.seller || 'לא זמין'}</td>
+      <td><span class="badge badge-${v.toLowerCase()}">${verdictLabels[v] || 'לוותר'}</span></td>
       <td>${d.total_score || '-'}</td>
-      <td><span class="badge badge-risk-${r}">${r}</span></td>
+      <td><span class="badge badge-risk-${r}">${riskLabels[r] || 'בינוני'}</span></td>
     </tr>`;
   }).join('');
 
@@ -192,7 +197,7 @@ export function renderComparisonTable(deals) {
     <div class="data-table-wrapper">
       <table class="data-table">
         <thead>
-          <tr><th>Rank</th><th>Product</th><th>Price</th><th>Seller</th><th>Verdict</th><th>Score</th><th>Risk</th></tr>
+          <tr><th>דירוג</th><th>מוצר</th><th>מחיר</th><th>מוכר</th><th>המלצה</th><th>ציון</th><th>סיכון</th></tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>

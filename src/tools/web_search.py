@@ -84,6 +84,7 @@ class WebSearchTool(BaseTool):
                         "q": query,
                         "count": max_results,
                         "freshness": freshness,
+                        "country": "IL",
                     },
                     timeout=15,
                 )
@@ -134,7 +135,7 @@ class WebSearchTool(BaseTool):
                     "X-API-KEY": SERPER_API_KEY,
                     "Content-Type": "application/json",
                 },
-                json={"q": query, "num": max_results},
+                json={"q": query, "num": max_results, "gl": "il", "hl": "he"},
                 timeout=15,
             )
             resp.raise_for_status()

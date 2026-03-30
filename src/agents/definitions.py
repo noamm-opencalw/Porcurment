@@ -4,27 +4,24 @@ from src.config.settings import (
     CREWAI_CHEAP_MODEL,
     CREWAI_DEFAULT_MODEL,
     CREWAI_PREMIUM_MODEL,
-    OPENROUTER_API_KEY,
+    GEMINI_API_KEY,
 )
 from src.tools.deal_scraper import DealScraperTool
 from src.tools.email_tool import EmailTool
 from src.tools.price_comparator import PriceComparatorTool
 from src.tools.web_search import WebSearchTool
 
+# Default: Gemini
 llm_default = LLM(
     model=CREWAI_DEFAULT_MODEL,
-    api_key=OPENROUTER_API_KEY,
-    base_url="https://openrouter.ai/api/v1",
+    api_key=GEMINI_API_KEY,
 )
+# Premium & Cheap: Claude via Anthropic OAuth (uses ANTHROPIC_API_KEY env var)
 llm_premium = LLM(
     model=CREWAI_PREMIUM_MODEL,
-    api_key=OPENROUTER_API_KEY,
-    base_url="https://openrouter.ai/api/v1",
 )
 llm_cheap = LLM(
     model=CREWAI_CHEAP_MODEL,
-    api_key=OPENROUTER_API_KEY,
-    base_url="https://openrouter.ai/api/v1",
 )
 
 
@@ -60,18 +57,19 @@ def create_deal_analyst() -> Agent:
     return Agent(
         role="Procurement Analyst & Deal Evaluator",
         goal=(
-            "Analyze and rank the discovered deals by value. For each deal, assess: "
-            "true total cost (including shipping, taxes, minimum order quantities), "
-            "supplier reliability, product authenticity risk, return policy, and "
-            "value-for-money ratio. Select the top 3 deals with clear justification."
+            "Analyze and rank the discovered deals by value for Israeli buyers. For each deal, assess: "
+            "true total cost (including shipping to Israel, מע״מ/VAT, customs duties, minimum order quantities), "
+            "supplier reliability, product authenticity risk, return policy for Israeli customers, and "
+            "value-for-money ratio in ILS. Select the top 3 deals with clear justification."
         ),
         backstory=(
-            "You are a senior procurement analyst who has saved companies millions "
-            "through rigorous deal evaluation. You know that the cheapest price is "
-            "not always the best deal — you factor in supplier reputation, shipping "
-            "time, warranty coverage, and hidden costs. You've been burned by too-good-"
-            "to-be-true deals from unreliable vendors, so you always verify legitimacy. "
-            "Your evaluations are data-driven and include a clear scoring rubric."
+            "You are a senior procurement analyst specializing in the Israeli market who has "
+            "saved companies millions through rigorous deal evaluation. You know that the "
+            "cheapest price is not always the best deal — you factor in supplier reputation, "
+            "shipping time to Israel, Israeli warranty coverage, customs duties, and hidden costs. "
+            "You've been burned by too-good-to-be-true deals from unreliable vendors, so you "
+            "always verify legitimacy. You understand Israeli consumer protection laws and "
+            "your evaluations are data-driven and include a clear scoring rubric."
         ),
         llm=llm_premium,
         tools=[WebSearchTool(), PriceComparatorTool()],

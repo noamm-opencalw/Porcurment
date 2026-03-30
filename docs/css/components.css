@@ -118,7 +118,7 @@
 .search-box__icon {
   display: flex;
   align-items: center;
-  padding-left: 16px;
+  padding-inline-start: 16px;
   color: var(--md-on-surface-variant);
 }
 
@@ -177,7 +177,7 @@
 .score-bar-label {
   width: 80px;
   color: var(--md-on-surface-variant);
-  text-align: right;
+  text-align: start;
   flex-shrink: 0;
 }
 
@@ -278,7 +278,7 @@
   font-size: 0.9rem;
 }
 
-.loading-stages { text-align: left; margin-top: 20px; }
+.loading-stages { text-align: start; margin-top: 20px; }
 
 .loading-stage {
   display: flex;
@@ -311,7 +311,7 @@
 
 .data-table th {
   padding: 14px 16px;
-  text-align: left;
+  text-align: start;
   font-weight: 600;
   font-size: 0.8rem;
   text-transform: uppercase;

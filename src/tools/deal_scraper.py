@@ -121,19 +121,23 @@ class DealScraperTool(BaseTool):
 
         # Try common price patterns in HTML
         price_patterns = [
+            r'₪[\d,]+\.?\d*',
+            r'ILS\s*[\d,]+\.?\d*',
             r'\$[\d,]+\.?\d*',
             r'USD\s*[\d,]+\.?\d*',
-            r'price["\s:]*\$?([\d,]+\.?\d*)',
+            r'price["\s:]*[₪$]?([\d,]+\.?\d*)',
         ]
         for pattern in price_patterns:
             match = re.search(pattern, html)
             if match:
-                return match.group(0).replace("$", "").replace(",", "").strip()
+                return match.group(0).replace("$", "").replace("₪", "").replace(",", "").strip()
 
         return None
 
     def _extract_phone(self, html: str) -> str | None:
         phone_patterns = [
+            r'\+972[-.\s]?\d{1,2}[-.\s]?\d{3}[-.\s]?\d{4}',  # Israeli +972
+            r'0[2-9]\d?[-.\s]?\d{3}[-.\s]?\d{4}',  # Israeli local
             r'\+?1?[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}',
             r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b',
         ]

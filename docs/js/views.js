@@ -17,8 +17,8 @@ export function renderHome() {
         <div class="home-hero__icon">
           ${icon('storefront', 40)}
         </div>
-        <h1>Find the Best Deals</h1>
-        <p>Our AI procurement agents search the web, compare prices, and recommend the top 3 deals — so you don't have to.</p>
+        <h1>מצא את העסקאות הטובות ביותר</h1>
+        <p>סוכני הרכש החכמים שלנו סורקים את האינטרנט, משווים מחירים וממליצים על 3 העסקאות המובילות — כדי שלא תצטרכו לעשות את זה בעצמכם.</p>
       </section>
 
       <section class="home-search">
@@ -31,31 +31,31 @@ export function renderHome() {
               type="text"
               id="search-input"
               class="search-box__input"
-              placeholder="What product are you looking for?"
+              placeholder="איזה מוצר אתם מחפשים?"
               autocomplete="off"
               required
             >
             <button type="submit" class="btn btn-filled btn-lg">
-              ${icon('bolt', 20)} Find Deals
+              ${icon('bolt', 20)} מצא עסקאות
             </button>
           </div>
         </form>
 
         <div class="home-suggestions" id="suggestions">
-          <button class="chip" data-query="wireless keyboard">wireless keyboard</button>
-          <button class="chip" data-query="ergonomic office chair">ergonomic office chair</button>
-          <button class="chip" data-query="27 inch 4K monitor">27 inch 4K monitor</button>
-          <button class="chip" data-query="noise cancelling headphones">noise cancelling headphones</button>
-          <button class="chip" data-query="standing desk converter">standing desk converter</button>
+          <button class="chip" data-query="מקלדת אלחוטית">מקלדת אלחוטית</button>
+          <button class="chip" data-query="כיסא משרדי ארגונומי">כיסא משרדי ארגונומי</button>
+          <button class="chip" data-query="מסך 27 אינץ 4K">מסך 27 אינץ׳ 4K</button>
+          <button class="chip" data-query="אוזניות עם מסנן רעשים">אוזניות עם מסנן רעשים</button>
+          <button class="chip" data-query="שולחן עמידה מתכוונן">שולחן עמידה מתכוונן</button>
         </div>
       </section>
 
       <section class="home-features">
-        <div class="chip chip--filled">${icon('travel_explore', 18)} Searches multiple sources</div>
-        <div class="chip chip--filled">${icon('analytics', 18)} AI-powered analysis</div>
-        <div class="chip chip--filled">${icon('verified', 18)} Price verification</div>
-        <div class="chip chip--filled">${icon('shield', 18)} Risk assessment</div>
-        <div class="chip chip--filled">${icon('mail', 18)} Email reports</div>
+        <div class="chip chip--filled">${icon('travel_explore', 18)} חיפוש ממקורות מרובים</div>
+        <div class="chip chip--filled">${icon('analytics', 18)} ניתוח מבוסס AI</div>
+        <div class="chip chip--filled">${icon('verified', 18)} אימות מחירים</div>
+        <div class="chip chip--filled">${icon('shield', 18)} הערכת סיכונים</div>
+        <div class="chip chip--filled">${icon('mail', 18)} דוחות במייל</div>
       </section>
     </div>`;
 }
@@ -67,7 +67,7 @@ export function initHome() {
     const input = document.getElementById('search-input');
     const q = input?.value.trim();
     if (!q) { input?.focus(); return; }
-    showLoading('Finding the best deals', `Searching for "${q}"...`);
+    showLoading('מחפשים את העסקאות הטובות ביותר', `מחפשים "${q}"...`);
     // Simulate search then navigate to results
     setTimeout(() => {
       hideLoading();
@@ -89,7 +89,7 @@ export function initHome() {
 // RESULTS VIEW
 // =====================
 export function renderResults(queryFromHash) {
-  const query = queryFromHash || 'Noise Cancelling Headphones';
+  const query = queryFromHash || 'אוזניות עם מסנן רעשים';
   const deals = DEMO_DEALS;
   const allDeals = DEMO_ALL_DEALS;
   const summary = DEMO_SUMMARY;
@@ -97,13 +97,13 @@ export function renderResults(queryFromHash) {
   return `
     <div class="view-enter">
       <div class="results-header">
-        <h1>Deal Recommendations</h1>
-        <p class="query-label">Results for <strong>${query}</strong></p>
+        <h1>המלצות עסקאות</h1>
+        <p class="query-label">תוצאות עבור <strong>${query}</strong></p>
       </div>
 
       <div class="summary-card">
         <div class="summary-card__label">
-          ${icon('auto_awesome', 20)} Executive Summary
+          ${icon('auto_awesome', 20)} סיכום מנהלים
         </div>
         <p>${summary}</p>
       </div>
@@ -113,19 +113,19 @@ export function renderResults(queryFromHash) {
       </div>
 
       <div class="comparison-section">
-        <h2>All Deals Comparison</h2>
+        <h2>השוואת כל העסקאות</h2>
         ${renderComparisonTable(allDeals)}
       </div>
 
       <div class="results-actions">
         <a href="#/" class="btn btn-outlined">
-          ${icon('search', 18)} New Search
+          ${icon('search', 18)} חיפוש חדש
         </a>
-        <button class="btn btn-tonal" onclick="window.__toast('CSV export available in the full Flask app')">
-          ${icon('download', 18)} Export CSV
+        <button class="btn btn-tonal" onclick="window.__toast('ייצוא CSV זמין באפליקציית Flask המלאה')">
+          ${icon('download', 18)} ייצוא CSV
         </button>
         <a href="#/history" class="btn btn-outlined">
-          ${icon('history', 18)} View History
+          ${icon('history', 18)} צפה בהיסטוריה
         </a>
       </div>
     </div>`;
@@ -145,15 +145,15 @@ export function renderHistory() {
     return `
       <div class="view-enter">
         <div class="history-header">
-          <h1>Search History</h1>
-          <p>Your past procurement searches and saved recommendations</p>
+          <h1>היסטוריית חיפושים</h1>
+          <p>החיפושים הקודמים שלכם וההמלצות השמורות</p>
         </div>
         <div class="empty-state">
           ${icon('inbox', 64)}
-          <h3>No searches yet</h3>
-          <p>Start by searching for a product to find the best deals.</p>
+          <h3>אין חיפושים עדיין</h3>
+          <p>התחילו בחיפוש מוצר כדי למצוא את העסקאות הטובות ביותר.</p>
           <a href="#/" class="btn btn-filled" style="margin-top:20px">
-            ${icon('search', 18)} Start Searching
+            ${icon('search', 18)} התחילו לחפש
           </a>
         </div>
       </div>`;
@@ -162,8 +162,8 @@ export function renderHistory() {
   return `
     <div class="view-enter">
       <div class="history-header">
-        <h1>Search History</h1>
-        <p>Your past procurement searches and saved recommendations</p>
+        <h1>היסטוריית חיפושים</h1>
+        <p>החיפושים הקודמים שלכם וההמלצות השמורות</p>
       </div>
       <div class="history-list">
         ${searches.map(s => renderHistoryCard(s)).join('')}

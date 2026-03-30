@@ -298,7 +298,7 @@
   box-shadow: var(--elevation-2);
   border-color: var(--md-primary);
   text-decoration: none;
-  transform: translateX(4px);
+  transform: translateX(-4px);
 }
 
 .history-card__icon {

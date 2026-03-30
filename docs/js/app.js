@@ -42,7 +42,7 @@ async function navigate() {
       initHome();
       break;
     case 'results': {
-      const query = getQueryParam(params[0], 'q') || 'Noise Cancelling Headphones';
+      const query = getQueryParam(params[0], 'q') || 'אוזניות עם מסנן רעשים';
       app.innerHTML = renderResults(query);
       initResults();
       break;
@@ -86,13 +86,13 @@ function createAppShell() {
       </a>
       <nav class="header__nav">
         <a class="header__nav-item" data-view="home" onclick="window.location.hash='#/'">
-          ${icon('search', 20)} Search
+          ${icon('search', 20)} חיפוש
         </a>
         <a class="header__nav-item" data-view="results" onclick="window.location.hash='#/results'">
-          ${icon('analytics', 20)} Results
+          ${icon('analytics', 20)} תוצאות
         </a>
         <a class="header__nav-item" data-view="history" onclick="window.location.hash='#/history'">
-          ${icon('history', 20)} History
+          ${icon('history', 20)} היסטוריה
         </a>
       </nav>
     `;
@@ -104,15 +104,15 @@ function createAppShell() {
     bottomNav.innerHTML = `
       <a class="bottom-nav__item" data-view="home" onclick="window.location.hash='#/'">
         ${icon('search')}
-        <span>Search</span>
+        <span>חיפוש</span>
       </a>
       <a class="bottom-nav__item" data-view="results" onclick="window.location.hash='#/results'">
         ${icon('analytics')}
-        <span>Results</span>
+        <span>תוצאות</span>
       </a>
       <a class="bottom-nav__item" data-view="history" onclick="window.location.hash='#/history'">
         ${icon('history')}
-        <span>History</span>
+        <span>היסטוריה</span>
       </a>
     `;
   }

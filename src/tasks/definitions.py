@@ -3,33 +3,36 @@ from crewai import Agent, Task
 
 def create_broad_search_task(agent: Agent, product_query: str) -> Task:
     return Task(
-        description=f"""Search for deals on the specified product: {product_query}
+        description=f"""Search for deals on the specified product available in Israel: {product_query}
 
 1. Run 3-4 different search queries using variations:
-   - "{product_query} best price"
-   - "{product_query} wholesale deal"
-   - "{product_query} discount coupon"
-   - "{product_query} buy online"
+   - "{product_query} מחיר" (price in Hebrew)
+   - "{product_query} best price Israel"
+   - "{product_query} קנייה אונליין ישראל" (buy online Israel)
+   - "{product_query} buy online ship to Israel"
 2. For each promising result, use the deal_scraper to extract:
    product title, price, URL, seller name, phone number, and description.
-3. Search across multiple channels: Amazon, eBay, Walmart, AliExpress,
-   manufacturer sites, B2B platforms (Alibaba, ThomasNet), and deal
-   aggregators (Slickdeals).
+3. Search across multiple channels prioritizing Israeli availability:
+   - Israeli retailers: KSP, Ivory, Bug, Zap, iDigital, Machsanei Hashmal
+   - International with Israel shipping: Amazon, eBay, AliExpress
+   - Israeli B2B platforms and wholesale suppliers
+   - Israeli deal aggregators and price comparison sites (Zap, Pricez)
 4. Collect at least 10 distinct deals with verified prices.
-5. Include deals from both retail and wholesale/B2B channels.
+5. Include deals from both Israeli retail and international sources that ship to Israel.
 6. For each deal, note the source type: retail, wholesale, marketplace, or b2b.
+7. Prices should be in ILS (₪) when available, or USD with shipping-to-Israel noted.
 
-CRITICAL: Only include deals that are currently available. Skip expired deals.""",
+CRITICAL: Only include deals that are currently available and can be shipped to or purchased in Israel. Skip expired deals.""",
         expected_output="""A JSON list of 10+ deals. Each deal must have:
 - title: product name/listing title
-- price: numeric price (e.g. 29.99)
-- currency: "USD" or original currency
+- price: numeric price (e.g. 299.90)
+- currency: "ILS" or "USD" if international
 - url: direct link to the deal
 - seller: retailer/supplier name
 - phone: contact phone number (or "N/A")
 - description: 2-3 sentence product description
 - source_type: "retail" | "wholesale" | "marketplace" | "b2b"
-- shipping_info: shipping cost, "free", or "unknown"
+- shipping_info: shipping cost to Israel, "free", or "unknown"
 
 Output ONLY the JSON array, no other text.""",
         agent=agent,
@@ -62,23 +65,24 @@ Output ONLY the JSON array, no other text.""",
 
 def create_deal_analysis_task(agent: Agent, product_query: str) -> Task:
     return Task(
-        description=f"""Analyze and score all discovered deals for "{product_query}":
+        description=f"""Analyze and score all discovered deals for "{product_query}" for Israeli buyers:
 
-1. Use the price_comparator tool to compare all deal prices and find the market average.
+1. Use the price_comparator tool to compare all deal prices and find the market average in Israel.
 2. Score each deal on 5 criteria (1-10 each):
-   - Price competitiveness (vs average market price from comparator)
-   - Supplier reliability (known brand? established seller? contact info available?)
-   - Total cost (including shipping, handling, taxes if known)
-   - Product authenticity (genuine product? authorized reseller? suspicious flags?)
-   - Buyer protection (return policy, warranty, payment security)
+   - Price competitiveness (vs average Israeli market price from comparator)
+   - Supplier reliability (known brand? established seller in Israel? contact info available?)
+   - Total cost (including shipping to Israel, מע״מ/VAT, customs duties if applicable)
+   - Product authenticity (genuine product? authorized Israeli reseller? suspicious flags?)
+   - Buyer protection (Israeli consumer law compliance, return policy, warranty valid in Israel, payment security)
 3. Calculate a weighted total score:
    Price: 30%, Reliability: 25%, Total Cost: 20%, Authenticity: 15%, Protection: 10%
 4. Rank all deals by total score (highest first).
 5. Select the top 3 deals.
-6. For each top deal, write a 2-3 sentence explanation of WHY it's a good deal.
+6. For each top deal, write a 2-3 sentence explanation of WHY it's a good deal for Israeli buyers.
 7. Include a negotiation tip for each deal.
 
-CRITICAL: Factor in suspicious_flags when scoring. Deals with many red flags should score low.""",
+CRITICAL: Factor in suspicious_flags when scoring. Deals with many red flags should score low.
+For international deals, factor in the total landed cost in Israel (price + shipping + customs + VAT).""",
         expected_output="""JSON object with:
 - "all_deals_scored": list of all deals with their scores
 - "top_3": list of the 3 best deals, each containing:
@@ -120,8 +124,8 @@ CRITICAL: The output must be valid JSON matching the exact schema below.""",
       "rank": 1,
       "title": "<product title>",
       "description": "<full description>",
-      "price": "<formatted price e.g. $29.99>",
-      "price_numeric": 29.99,
+      "price": "<formatted price e.g. ₪299.90>",
+      "price_numeric": 299.90,
       "url": "<link to deal>",
       "phone": "<seller phone or N/A>",
       "seller": "<seller name>",
@@ -148,11 +152,11 @@ def create_send_report_task(
         description=f"""Send the top 3 deal recommendations for "{product_query}" via email:
 
 1. Format the deals into a professional HTML email with:
-   - Subject: "Procurement Report: Top Deals for {product_query}"
+   - Subject: "דוח רכש: העסקאות המובילות עבור {product_query}"
    - A brief intro paragraph
    - A card-style layout for each deal showing: title, price, seller, link, phone
    - Each deal's explanation and verdict
-   - A footer with "Generated by Porcurment AI"
+   - A footer with "נוצר על ידי Porcurment AI"
 2. Send to: {recipient_email}""",
         expected_output="Confirmation JSON with success status and message ID.",
         agent=agent,
