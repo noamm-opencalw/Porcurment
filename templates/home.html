@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-icon">
+        <span class="material-symbols-rounded">storefront</span>
+    </div>
+    <h1>Find the Best Deals</h1>
+    <p>Our AI procurement agents search the web, compare prices, and recommend the top 3 deals — so you don't have to.</p>
+</section>
+
+<!-- Search -->
+<section class="search-section">
+    <form action="{{ url_for('search') }}" method="POST" onsubmit="return handleSearchSubmit(event)">
+        <div class="search-box">
+            <div class="search-icon">
+                <span class="material-symbols-rounded">search</span>
+            </div>
+            <input
+                type="text"
+                id="search-input"
+                name="product_query"
+                class="search-input"
+                placeholder="What product are you looking for?"
+                autocomplete="off"
+                required
+            >
+            <button type="submit" class="search-btn">
+                <span class="material-symbols-rounded">bolt</span>
+                Find Deals
+            </button>
+        </div>
+    </form>
+
+    <!-- Quick suggestions -->
+    <div class="suggestions">
+        <button class="suggestion-chip" onclick="fillSearch('wireless keyboard')">wireless keyboard</button>
+        <button class="suggestion-chip" onclick="fillSearch('ergonomic office chair')">ergonomic office chair</button>
+        <button class="suggestion-chip" onclick="fillSearch('27 inch 4K monitor')">27 inch 4K monitor</button>
+        <button class="suggestion-chip" onclick="fillSearch('noise cancelling headphones')">noise cancelling headphones</button>
+        <button class="suggestion-chip" onclick="fillSearch('standing desk converter')">standing desk converter</button>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="features">
+    <div class="feature-chip">
+        <span class="material-symbols-rounded">travel_explore</span>
+        Searches multiple sources
+    </div>
+    <div class="feature-chip">
+        <span class="material-symbols-rounded">analytics</span>
+        AI-powered analysis
+    </div>
+    <div class="feature-chip">
+        <span class="material-symbols-rounded">verified</span>
+        Price verification
+    </div>
+    <div class="feature-chip">
+        <span class="material-symbols-rounded">shield</span>
+        Risk assessment
+    </div>
+    <div class="feature-chip">
+        <span class="material-symbols-rounded">mail</span>
+        Email reports
+    </div>
+</section>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loading-card">
+        <div class="loading-spinner"></div>
+        <h3>Finding the best deals</h3>
+        <p>Our AI agents are searching the web for you</p>
+        <div class="loading-stages">
+            <div class="loading-stage active" id="stage-search">
+                <span class="material-symbols-rounded">pending</span>
+                Searching retailers &amp; suppliers...
+            </div>
+            <div class="loading-stage" id="stage-analyze">
+                <span class="material-symbols-rounded">circle</span>
+                Analyzing &amp; comparing prices...
+            </div>
+            <div class="loading-stage" id="stage-rank">
+                <span class="material-symbols-rounded">circle</span>
+                Ranking top deals...
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -27,4 +27,4 @@ fi
 echo ""
 echo "=== Setup complete! ==="
 echo "Activate with: source .venv/bin/activate"
-echo "Run UI with:   streamlit run app.py"
+echo "Run UI with:   python app.py"

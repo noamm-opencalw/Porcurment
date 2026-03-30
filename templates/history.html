@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+
+{% block content %}
+<div class="history-header">
+    <h1>Search History</h1>
+    <p>Your past procurement searches and saved recommendations</p>
+</div>
+
+{% if searches %}
+<div class="history-list">
+    {% for search in searches %}
+    <a href="{{ url_for('view_results', search_id=search.id) }}" class="history-card">
+        <div class="history-card-icon {{ search.status }}">
+            {% if search.status == 'completed' %}
+                <span class="material-symbols-rounded">check_circle</span>
+            {% elif search.status == 'failed' %}
+                <span class="material-symbols-rounded">error</span>
+            {% else %}
+                <span class="material-symbols-rounded">pending</span>
+            {% endif %}
+        </div>
+        <div class="history-card-content">
+            <div class="history-card-query">{{ search.product_query }}</div>
+            <div class="history-card-meta">
+                <span>
+                    {% if search.status == 'completed' %}
+                        {{ search.deals_found }} deal{{ 's' if search.deals_found != 1 else '' }} found
+                    {% elif search.status == 'failed' %}
+                        Search failed
+                    {% else %}
+                        In progress...
+                    {% endif %}
+                </span>
+                <span>{{ search.started_at.strftime('%b %d, %Y at %I:%M %p') if search.started_at else '' }}</span>
+            </div>
+        </div>
+        <span class="material-symbols-rounded history-card-arrow">chevron_right</span>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <span class="material-symbols-rounded">inbox</span>
+    <h3>No searches yet</h3>
+    <p>Start by searching for a product to find the best deals.</p>
+    <a href="{{ url_for('home') }}" class="btn btn-filled" style="margin-top: 20px;">
+        <span class="material-symbols-rounded">search</span>
+        Start Searching
+    </a>
+</div>
+{% endif %}
+{% endblock %}

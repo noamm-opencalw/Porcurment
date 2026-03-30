@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="results-header">
+    <h1>Deal Recommendations</h1>
+    <p class="query-label">Results for <strong>{{ product_query }}</strong></p>
+</div>
+
+<!-- Error state -->
+{% if error %}
+<div class="summary-card" style="background: var(--md-error-container); color: var(--md-error);">
+    <div class="summary-label">
+        <span class="material-symbols-rounded">error</span>
+        Error
+    </div>
+    <p>{{ error }}</p>
+</div>
+<div style="text-align: center; margin-top: 24px;">
+    <a href="{{ url_for('home') }}" class="btn btn-filled">
+        <span class="material-symbols-rounded">arrow_back</span>
+        Try Again
+    </a>
+</div>
+{% else %}
+
+<!-- Summary -->
+{% if summary %}
+<div class="summary-card">
+    <div class="summary-label">
+        <span class="material-symbols-rounded">auto_awesome</span>
+        Executive Summary
+    </div>
+    <p>{{ summary }}</p>
+</div>
+{% endif %}
+
+<!-- Top 3 Deal Cards -->
+{% if deals %}
+<div class="deals-grid">
+    {% for deal in deals[:3] %}
+    <div class="deal-card">
+        <!-- Header: rank + price -->
+        <div class="deal-card-header">
+            <div class="deal-rank rank-{{ deal.rank or loop.index }}">
+                #{{ deal.rank or loop.index }}
+            </div>
+            <div class="deal-price">
+                {% if deal.price_numeric %}
+                    ${{ "%.2f"|format(deal.price_numeric) }}
+                {% elif deal.price %}
+                    {{ deal.price }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="deal-card-body">
+            <h3 class="deal-title">{{ deal.title or 'Unknown Product' }}</h3>
+            <div class="deal-seller">
+                <span class="material-symbols-rounded" style="font-size: 14px;">store</span>
+                {{ deal.seller or 'Unknown Seller' }}
+            </div>
+
+            <!-- Badges -->
+            <div class="badges-row">
+                {% set verdict = (deal.verdict or 'PASS')|upper %}
+                <span class="badge badge-{{ verdict|lower }}">
+                    {% if verdict == 'BUY' %}
+                        <span class="material-symbols-rounded" style="font-size:14px">thumb_up</span>
+                    {% elif verdict == 'NEGOTIATE' %}
+                        <span class="material-symbols-rounded" style="font-size:14px">handshake</span>
+                    {% else %}
+                        <span class="material-symbols-rounded" style="font-size:14px">block</span>
+                    {% endif %}
+                    {{ verdict }}
+                </span>
+                {% set risk = (deal.risk_level or 'medium')|lower %}
+                <span class="badge badge-risk-{{ risk }}">
+                    Risk: {{ risk }}
+                </span>
+            </div>
+
+            <!-- Description -->
+            <p class="deal-description">{{ deal.description or 'No description available.' }}</p>
+
+            <!-- Explanation -->
+            {% if deal.explanation %}
+            <div class="explanation-box">
+                <div class="label">Why this deal?</div>
+                <p>{{ deal.explanation }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Score -->
+            {% if deal.total_score %}
+            <div class="score-section">
+                <div class="score-total">
+                    <span class="number">{{ deal.total_score|int }}</span>
+                    <span class="max">/ 100</span>
+                </div>
+                {% if deal.score_breakdown %}
+                <div class="score-bars">
+                    {% set labels = {'price': 'Price', 'reliability': 'Reliability', 'total_cost': 'Cost', 'authenticity': 'Authentic', 'protection': 'Protection'} %}
+                    {% for key, label in labels.items() %}
+                    {% set val = deal.score_breakdown.get(key, 5) %}
+                    <div class="score-bar-row">
+                        <span class="score-bar-label">{{ label }}</span>
+                        <div class="score-bar-track">
+                            <div class="score-bar-fill {{ key }}" data-width="{{ val * 10 }}"></div>
+                        </div>
+                        <span class="score-bar-value">{{ val }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Contact info -->
+            <div class="deal-contacts">
+                {% if deal.phone and deal.phone != 'N/A' %}
+                <div class="contact-item">
+                    <span class="material-symbols-rounded">call</span>
+                    <a href="tel:{{ deal.phone }}">{{ deal.phone }}</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Negotiation tip -->
+        {% if deal.negotiation_strategy %}
+        <div class="negotiation-tip">
+            <span class="material-symbols-rounded">lightbulb</span>
+            <span>{{ deal.negotiation_strategy }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="deal-card-actions">
+            {% if deal.url %}
+            <a href="{{ deal.url }}" target="_blank" rel="noopener" class="btn btn-filled">
+                <span class="material-symbols-rounded">open_in_new</span>
+                View Deal
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Comparison Table -->
+{% if deals|length > 0 %}
+<div class="comparison-section">
+    <h2>All Deals Comparison</h2>
+    <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Seller</th>
+                    <th>Verdict</th>
+                    <th>Score</th>
+                    <th>Risk</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for deal in deals %}
+                <tr>
+                    <td><strong>#{{ deal.rank or loop.index }}</strong></td>
+                    <td>{{ (deal.title or '')[:50] }}{% if (deal.title or '')|length > 50 %}...{% endif %}</td>
+                    <td style="font-weight: 600; color: var(--md-success);">
+                        {% if deal.price_numeric %}${{ "%.2f"|format(deal.price_numeric) }}{% elif deal.price %}{{ deal.price }}{% else %}N/A{% endif %}
+                    </td>
+                    <td>{{ deal.seller or 'N/A' }}</td>
+                    <td>
+                        {% set v = (deal.verdict or 'PASS')|upper %}
+                        <span class="badge badge-{{ v|lower }}">{{ v }}</span>
+                    </td>
+                    <td>{{ deal.total_score|default('-', true) }}</td>
+                    <td>
+                        {% set r = (deal.risk_level or 'medium')|lower %}
+                        <span class="badge badge-risk-{{ r }}">{{ r }}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Actions Bar -->
+<div class="actions-bar">
+    <a href="{{ url_for('home') }}" class="btn btn-outlined">
+        <span class="material-symbols-rounded">search</span>
+        New Search
+    </a>
+    {% if search_id %}
+    <button class="btn btn-tonal" onclick="exportCSV({{ search_id }})">
+        <span class="material-symbols-rounded">download</span>
+        Export CSV
+    </button>
+    {% endif %}
+    <a href="{{ url_for('history') }}" class="btn btn-outlined">
+        <span class="material-symbols-rounded">history</span>
+        View History
+    </a>
+</div>
+
+{% endif %}
+{% endblock %}
