@@ -40,11 +40,6 @@ export function renderHome() {
           </div>
         </form>
 
-        <label class="international-toggle">
-          <input type="checkbox" id="include-international">
-          <span>חפש גם באתרים בינלאומיים (AliExpress, Amazon ועוד)</span>
-        </label>
-
         <div class="home-suggestions" id="suggestions">
           <button class="chip" data-query="מקלדת אלחוטית">מקלדת אלחוטית</button>
           <button class="chip" data-query="כיסא משרדי ארגונומי">כיסא ארגונומי</button>
