@@ -14,10 +14,10 @@ export function renderHome() {
     <div class="view-enter">
       <section class="home-hero">
         <div class="home-hero__icon">
-          ${icon('bolt', 40)}
+          ${icon('search_check', 36)}
         </div>
         <h1>מצא את העסקה הטובה ביותר</h1>
-        <p>AI סורק ספקים, משווה מחירים, מחזיר את 3 העסקאות המובילות.</p>
+        <p>חיפוש חכם בין ספקים, השוואת מחירים ודירוג אוטומטי של 3 העסקאות המובילות.</p>
       </section>
 
       <section class="home-search">
@@ -35,7 +35,7 @@ export function renderHome() {
               required
             >
             <button type="submit" class="btn btn-filled btn-lg">
-              ${icon('bolt', 20)} חיפוש
+              ${icon('search', 20)} חיפוש
             </button>
           </div>
         </form>

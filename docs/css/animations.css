@@ -1,5 +1,5 @@
 /* ============================================
-   Porcurment — Animations
+   DealFinder — Animations (Google-style)
    ============================================ */
 
 @keyframes spin {
@@ -7,43 +7,47 @@
 }
 
 @keyframes toastIn {
-  from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+  from { transform: translateX(-50%) translateY(16px); opacity: 0; }
   to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(24px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.92); }
+  from { opacity: 0; transform: scale(0.96); }
   to { opacity: 1; transform: scale(1); }
 }
 
 /* View transition */
 .view-enter {
-  animation: fadeIn var(--duration-medium) var(--motion-standard);
+  animation: fadeIn var(--duration-medium) var(--motion-decelerate);
 }
 
-/* Staggered card animations */
-.deal-card { animation: slideUp var(--duration-medium) var(--motion-standard) both; }
+/* Staggered card animations — subtle */
+.deal-card {
+  animation: slideUp var(--duration-medium) var(--motion-decelerate) both;
+}
 .deal-card:nth-child(1) { animation-delay: 0ms; }
-.deal-card:nth-child(2) { animation-delay: 80ms; }
-.deal-card:nth-child(3) { animation-delay: 160ms; }
+.deal-card:nth-child(2) { animation-delay: 60ms; }
+.deal-card:nth-child(3) { animation-delay: 120ms; }
 
-.history-card { animation: fadeIn var(--duration-short) var(--motion-standard) both; }
+.history-card {
+  animation: fadeIn var(--duration-short) var(--motion-decelerate) both;
+}
 .history-card:nth-child(1) { animation-delay: 0ms; }
-.history-card:nth-child(2) { animation-delay: 50ms; }
-.history-card:nth-child(3) { animation-delay: 100ms; }
-.history-card:nth-child(4) { animation-delay: 150ms; }
-.history-card:nth-child(5) { animation-delay: 200ms; }
-.history-card:nth-child(6) { animation-delay: 250ms; }
+.history-card:nth-child(2) { animation-delay: 40ms; }
+.history-card:nth-child(3) { animation-delay: 80ms; }
+.history-card:nth-child(4) { animation-delay: 120ms; }
+.history-card:nth-child(5) { animation-delay: 160ms; }
+.history-card:nth-child(6) { animation-delay: 200ms; }
 
 /* Pulse for loading */
 @keyframes pulse {
@@ -52,3 +56,11 @@
 }
 
 .pulse { animation: pulse 2s ease-in-out infinite; }
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

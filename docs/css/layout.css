@@ -1,5 +1,5 @@
 /* ============================================
-   פורקורמנט — Layout (Header, Nav, Content)
+   DealFinder — Layout (Google-style)
    ============================================ */
 
 /* ---- Header ---- */
@@ -7,15 +7,14 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(250, 250, 250, 0.85);
+  background: var(--md-surface);
   border-bottom: 1px solid var(--md-outline-variant);
-  backdrop-filter: blur(12px);
 }
 
 .header__inner {
   max-width: var(--content-max-width);
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
   height: var(--header-height);
   display: flex;
   align-items: center;
@@ -25,7 +24,7 @@
 .header__brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   text-decoration: none;
   color: var(--md-on-surface);
   cursor: pointer;
@@ -34,17 +33,18 @@
 .header__brand:hover { text-decoration: none; }
 
 .header__brand .material-symbols-rounded {
-  font-size: 28px;
+  font-size: 26px;
   color: var(--md-primary);
 }
 
 .header__brand-text {
   font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-weight: 500;
+  color: var(--md-on-surface);
+  letter-spacing: -0.02em;
 }
 
-/* Desktop nav */
+/* Desktop nav — Google-style pill tabs */
 .header__nav {
   display: none;
   gap: 4px;
@@ -53,19 +53,20 @@
 .header__nav-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
+  gap: 8px;
+  padding: 8px 16px;
   border-radius: var(--radius-full);
   color: var(--md-on-surface-variant);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   text-decoration: none;
-  transition: all var(--duration-short) var(--motion-standard);
+  transition: background var(--duration-short) var(--motion-standard),
+              color var(--duration-short) var(--motion-standard);
   cursor: pointer;
 }
 
 .header__nav-item:hover {
-  background: var(--md-surface-container-high);
+  background: var(--md-surface-container);
   text-decoration: none;
   color: var(--md-on-surface);
 }
@@ -77,19 +78,18 @@
 
 .header__nav-item .material-symbols-rounded { font-size: 18px; }
 
-/* ---- Bottom Navigation (Mobile) ---- */
+/* ---- Bottom Navigation (Mobile) — clean Google style ---- */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(250, 250, 250, 0.92);
-  backdrop-filter: blur(12px);
+  background: var(--md-surface);
   border-top: 1px solid var(--md-outline-variant);
   display: flex;
   justify-content: space-around;
-  padding: 0 8px;
+  padding: 0;
   height: var(--bottom-nav-height);
 }
 
@@ -98,37 +98,35 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 6px 16px;
+  gap: 4px;
+  padding: 8px 12px;
   color: var(--md-on-surface-variant);
   text-decoration: none;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
-  border-radius: var(--radius-lg);
-  transition: all var(--duration-short) var(--motion-standard);
+  transition: color var(--duration-short) var(--motion-standard);
   cursor: pointer;
-  min-width: 56px;
+  min-width: 64px;
+  position: relative;
 }
 
 .bottom-nav__item:hover { text-decoration: none; }
 
-.bottom-nav__item .material-symbols-rounded { font-size: 22px; }
+.bottom-nav__item .material-symbols-rounded { font-size: 24px; }
 
-.bottom-nav__item.active {
-  color: var(--md-primary);
-}
+.bottom-nav__item.active { color: var(--md-primary); }
 
 .bottom-nav__item.active .material-symbols-rounded {
   background: var(--md-primary-container);
   border-radius: var(--radius-full);
-  padding: 3px 14px;
+  padding: 4px 16px;
 }
 
 /* ---- Main Content ---- */
 #app {
   max-width: var(--content-max-width);
   margin: 0 auto;
-  padding: 20px;
+  padding: 24px;
   min-height: calc(100vh - var(--header-height) - var(--bottom-nav-height));
 }
 
@@ -137,6 +135,7 @@
   .header__nav { display: flex; }
   .bottom-nav { display: none; }
   body { padding-bottom: 0; }
+  #app { padding: 32px 24px; }
 }
 
 @media (max-width: 768px) {

@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "superpowers": "^0.0.2",
+    "uipro-cli": "^2.2.3"
+  }
+}

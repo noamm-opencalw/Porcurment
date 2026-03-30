@@ -81,8 +81,8 @@ function createAppShell() {
   if (header) {
     header.innerHTML = `
       <a class="header__brand" onclick="window.location.hash='#/'">
-        ${icon('bolt', 28)}
-        <span class="header__brand-text">פורקורמנט</span>
+        ${icon('search_check', 26)}
+        <span class="header__brand-text">DealFinder</span>
       </a>
       <nav class="header__nav">
         <a class="header__nav-item" data-view="home" onclick="window.location.hash='#/'">
