@@ -1,8 +1,8 @@
-/* DealFinder — View Renderers */
+/* פורקורמנט — View Renderers */
 
 import { icon } from './icons.js';
 import { renderDealCard, renderHistoryCard, renderComparisonTable, animateScoreBars, showLoading, hideLoading, showToast } from './components.js';
-import { DEMO_DEALS, DEMO_SUMMARY, DEMO_ALL_DEALS, DEMO_HISTORY, searchState, findClarification } from './api.js';
+import { searchDeals, getSearchHistory, getSearchResult, searchState, findClarification } from './api.js';
 
 window.__toast = showToast;
 
@@ -16,8 +16,8 @@ export function renderHome() {
         <div class="home-hero__icon">
           ${icon('bolt', 40)}
         </div>
-        <h1>Find the best deal</h1>
-        <p>AI scans suppliers, compares prices, returns top 3.</p>
+        <h1>מצא את העסקה הטובה ביותר</h1>
+        <p>AI סורק ספקים, משווה מחירים, מחזיר את 3 העסקאות המובילות.</p>
       </section>
 
       <section class="home-search">
@@ -30,41 +30,61 @@ export function renderHome() {
               type="text"
               id="search-input"
               class="search-box__input"
-              placeholder="What are you looking for?"
+              placeholder="מה אתה מחפש?"
               autocomplete="off"
               required
             >
             <button type="submit" class="btn btn-filled btn-lg">
-              ${icon('bolt', 20)} Search
+              ${icon('bolt', 20)} חיפוש
             </button>
           </div>
         </form>
 
+        <label class="international-toggle">
+          <input type="checkbox" id="include-international">
+          <span>חפש גם באתרים בינלאומיים (AliExpress, Amazon ועוד)</span>
+        </label>
+
         <div class="home-suggestions" id="suggestions">
-          <button class="chip" data-query="wireless keyboard">wireless keyboard</button>
-          <button class="chip" data-query="ergonomic office chair">ergonomic chair</button>
-          <button class="chip" data-query="27 inch 4K monitor">27" 4K monitor</button>
-          <button class="chip" data-query="noise cancelling headphones">NC headphones</button>
-          <button class="chip" data-query="standing desk">standing desk</button>
+          <button class="chip" data-query="מקלדת אלחוטית">מקלדת אלחוטית</button>
+          <button class="chip" data-query="כיסא משרדי ארגונומי">כיסא ארגונומי</button>
+          <button class="chip" data-query="מסך 27 אינץ 4K">מסך 27״ 4K</button>
+          <button class="chip" data-query="אוזניות עם מסנן רעשים">אוזניות NC</button>
+          <button class="chip" data-query="שולחן עמידה מתכוונן">שולחן עמידה</button>
         </div>
       </section>
     </div>`;
 }
 
-function startSearch(query) {
-  // Store the refined query and generate demo results for it
-  // searchState.query may already be set by clarification dialog (original query)
+async function startSearch(query) {
   if (!searchState.query) searchState.query = query;
   searchState.refinedQuery = query;
-  searchState.deals = DEMO_DEALS;
-  searchState.allDeals = DEMO_ALL_DEALS;
-  searchState.summary = `Analyzed 10 deals from major retailers for "${query}". Top picks include free shipping and buyer protection.`;
 
-  showLoading('Finding best deals', `Searching "${query}"...`);
-  setTimeout(() => {
+  const includeInternational = document.getElementById('include-international')?.checked || false;
+
+  showLoading('מחפש את העסקאות הטובות ביותר', `מחפש "${query}"...`);
+
+  try {
+    const data = await searchDeals(query, includeInternational);
+
+    if (data.error && (!data.deals || data.deals.length === 0)) {
+      hideLoading();
+      showToast('שגיאה: ' + data.error);
+      return;
+    }
+
+    searchState.deals = (data.deals || []).slice(0, 3);
+    searchState.allDeals = data.deals || [];
+    searchState.summary = data.recommendation_summary || '';
+    searchState.searchId = data.search_id;
+
     hideLoading();
     window.location.hash = `#/results?q=${encodeURIComponent(query)}`;
-  }, 2800);
+  } catch (err) {
+    hideLoading();
+    showToast('השרת לא זמין. ודא שהשרת רץ ונסה שוב.');
+    console.error('Search error:', err);
+  }
 }
 
 function showClarificationDialog(originalQuery, rule) {
@@ -80,7 +100,7 @@ function showClarificationDialog(originalQuery, rule) {
         ${icon('help', 32)}
       </div>
       <h3 class="clarification-card__title">${rule.question}</h3>
-      <p class="clarification-card__subtitle">You searched for <strong>"${originalQuery}"</strong> — help us find exactly what you need:</p>
+      <p class="clarification-card__subtitle">חיפשת <strong>"${originalQuery}"</strong> — עזור לנו למצוא בדיוק מה שאתה צריך:</p>
       <div class="clarification-options" id="clarification-options">
         ${rule.options.map(opt => `
           <button class="clarification-option" data-value="${opt.value}">
@@ -89,13 +109,12 @@ function showClarificationDialog(originalQuery, rule) {
         `).join('')}
       </div>
       <button class="btn btn-outlined clarification-skip" id="clarification-skip">
-        Search as is: "${originalQuery}"
+        חפש כמו שזה: "${originalQuery}"
       </button>
     </div>
   `;
   document.body.appendChild(overlay);
 
-  // Handle option selection — save original query for display
   document.getElementById('clarification-options')?.addEventListener('click', (e) => {
     const btn = e.target.closest('.clarification-option');
     if (!btn) return;
@@ -104,13 +123,11 @@ function showClarificationDialog(originalQuery, rule) {
     startSearch(btn.dataset.value);
   });
 
-  // Handle skip — original = refined
   document.getElementById('clarification-skip')?.addEventListener('click', () => {
     overlay.remove();
     startSearch(originalQuery);
   });
 
-  // Close on overlay background click
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
       overlay.remove();
@@ -125,11 +142,9 @@ export function initHome() {
     const q = input?.value.trim();
     if (!q) { input?.focus(); return; }
 
-    // Reset state for new search
     searchState.query = null;
     searchState.refinedQuery = null;
 
-    // Check if we need clarification
     const rule = findClarification(q);
     if (rule) {
       showClarificationDialog(q, rule);
@@ -150,51 +165,98 @@ export function initHome() {
 // =====================
 // RESULTS VIEW
 // =====================
-export function renderResults(queryFromHash) {
-  const query = searchState.refinedQuery || queryFromHash || 'noise cancelling headphones';
-  const deals = searchState.deals || DEMO_DEALS;
-  const allDeals = searchState.allDeals || DEMO_ALL_DEALS;
-  const summary = searchState.summary || DEMO_SUMMARY;
+export function renderResults(queryFromHash, searchId) {
+  const query = searchState.refinedQuery || queryFromHash;
+  const deals = searchState.deals;
+  const allDeals = searchState.allDeals;
+  const summary = searchState.summary;
 
-  // Show the original query if it was refined
   const originalQuery = searchState.query;
-  const wasRefined = originalQuery && originalQuery !== query;
+  const wasRefined = originalQuery && query && originalQuery !== query;
+
+  // No results — show empty or loading state
+  if (!deals || deals.length === 0) {
+    if (searchId) {
+      return `
+        <div class="view-enter">
+          <div class="results-loading">
+            <div class="loading-spinner"></div>
+            <p>טוען תוצאות...</p>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="view-enter">
+        <div class="empty-state">
+          ${icon('search_off', 64)}
+          <h3>אין תוצאות</h3>
+          <p>חפש מוצר כדי לראות את העסקאות הטובות ביותר.</p>
+          <a href="#/" class="btn btn-filled" style="margin-top:20px">
+            ${icon('search', 18)} חיפוש חדש
+          </a>
+        </div>
+      </div>`;
+  }
+
+  const top3 = deals.slice(0, 3);
 
   return `
     <div class="view-enter">
       <div class="results-header">
-        <p class="query-label">Results for <strong>${query}</strong></p>
-        ${wasRefined ? `<p class="query-refined">Original search: "${originalQuery}" &rarr; refined to "${query}"</p>` : ''}
+        <p class="query-label">תוצאות עבור <strong>${query}</strong></p>
+        ${wasRefined ? `<p class="query-refined">חיפוש מקורי: "${originalQuery}" &larr; מדויק ל-"${query}"</p>` : ''}
       </div>
 
-      <div class="summary-card">
-        <div class="summary-card__label">
-          ${icon('auto_awesome', 20)} AI Summary
-        </div>
-        <p>${summary}</p>
-      </div>
+      ${summary ? `
+        <div class="summary-card">
+          <div class="summary-card__label">
+            ${icon('auto_awesome', 20)} סיכום AI
+          </div>
+          <p>${summary}</p>
+        </div>` : ''}
 
       <div class="deals-grid">
-        ${deals.map(d => renderDealCard(d)).join('')}
+        ${top3.map(d => renderDealCard(d)).join('')}
       </div>
 
-      <div class="comparison-section">
-        <h2>All deals</h2>
-        ${renderComparisonTable(allDeals)}
-      </div>
+      ${allDeals && allDeals.length > 3 ? `
+        <div class="comparison-section">
+          <h2>כל העסקאות</h2>
+          ${renderComparisonTable(allDeals)}
+        </div>` : ''}
 
       <div class="results-actions">
         <a href="#/" class="btn btn-outlined">
-          ${icon('search', 18)} New search
+          ${icon('search', 18)} חיפוש חדש
         </a>
-        <button class="btn btn-tonal" onclick="window.__toast('CSV export available in full app')">
-          ${icon('download', 18)} Export CSV
-        </button>
+        ${searchState.searchId ? `
+          <a href="/export/${searchState.searchId}" class="btn btn-tonal" target="_blank">
+            ${icon('download', 18)} ייצוא CSV
+          </a>` : ''}
       </div>
     </div>`;
 }
 
-export function initResults() {
+export async function initResults(searchId) {
+  // If navigating to a saved search, load from API
+  if (searchId && (!searchState.deals || searchState.deals.length === 0)) {
+    try {
+      const data = await getSearchResult(searchId);
+      searchState.deals = (data.deals || []).slice(0, 3);
+      searchState.allDeals = data.deals || [];
+      searchState.summary = data.recommendation_summary || '';
+      searchState.searchId = searchId;
+      searchState.refinedQuery = data.product_query;
+
+      const app = document.getElementById('app');
+      app.innerHTML = renderResults(data.product_query, null);
+    } catch (err) {
+      showToast('שגיאה בטעינת תוצאות.');
+      console.error('Load results error:', err);
+    }
+  }
+
   animateScoreBars();
 }
 
@@ -202,34 +264,51 @@ export function initResults() {
 // HISTORY VIEW
 // =====================
 export function renderHistory() {
-  const searches = DEMO_HISTORY;
-
-  if (!searches.length) {
-    return `
-      <div class="view-enter">
-        <div class="history-header">
-          <h1>History</h1>
-        </div>
-        <div class="empty-state">
-          ${icon('inbox', 64)}
-          <h3>No searches yet</h3>
-          <p>Search for a product to get started.</p>
-          <a href="#/" class="btn btn-filled" style="margin-top:20px">
-            ${icon('search', 18)} Search
-          </a>
-        </div>
-      </div>`;
-  }
-
   return `
     <div class="view-enter">
       <div class="history-header">
-        <h1>History</h1>
+        <h1>היסטוריה</h1>
       </div>
-      <div class="history-list">
-        ${searches.map(s => renderHistoryCard(s)).join('')}
+      <div id="history-content">
+        <div class="results-loading">
+          <div class="loading-spinner"></div>
+          <p>טוען היסטוריה...</p>
+        </div>
       </div>
     </div>`;
 }
 
-export function initHistory() {}
+export async function initHistory() {
+  const container = document.getElementById('history-content');
+  if (!container) return;
+
+  try {
+    const searches = await getSearchHistory();
+
+    if (!searches || searches.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          ${icon('inbox', 64)}
+          <h3>אין חיפושים עדיין</h3>
+          <p>חפש מוצר כדי להתחיל.</p>
+          <a href="#/" class="btn btn-filled" style="margin-top:20px">
+            ${icon('search', 18)} חיפוש
+          </a>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="history-list">
+        ${searches.map(s => renderHistoryCard(s)).join('')}
+      </div>`;
+  } catch (err) {
+    container.innerHTML = `
+      <div class="empty-state">
+        ${icon('cloud_off', 64)}
+        <h3>לא ניתן לטעון היסטוריה</h3>
+        <p>ודא שהשרת רץ ונסה שוב.</p>
+      </div>`;
+    console.error('History load error:', err);
+  }
+}

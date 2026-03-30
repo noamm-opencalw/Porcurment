@@ -29,6 +29,7 @@ class SearchQuery(Base):
     product_query = Column(String(500), nullable=False)
     status = Column(String(20), default="running")  # running | completed | failed
     deals_found = Column(Integer, default=0)
+    include_international = Column(Boolean, default=False)
     started_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed_at = Column(DateTime, nullable=True)
 

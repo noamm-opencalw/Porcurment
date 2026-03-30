@@ -1,4 +1,4 @@
-/* DealFinder — Reusable UI Components */
+/* פורקורמנט — Reusable UI Components */
 
 import { icon } from './icons.js';
 
@@ -19,9 +19,9 @@ export function showToast(message, duration = 3000) {
 
 // ---- Loading overlay ----
 const STAGES = [
-  { key: 'search', label: 'Scanning suppliers...' },
-  { key: 'analyze', label: 'Comparing prices...' },
-  { key: 'rank', label: 'Ranking top deals...' },
+  { key: 'search', label: 'מחפש בחנויות וספקים...' },
+  { key: 'analyze', label: 'מנתח ומשווה מחירים...' },
+  { key: 'rank', label: 'מדרג את העסקאות המובילות...' },
 ];
 
 let stageIndex = 0;
@@ -44,6 +44,7 @@ export function showLoading(title, subtitle) {
   overlay.classList.add('active');
   stageIndex = 0;
 
+  // Stages advance every 15s (real searches take 30-60s+)
   stageTimer = setInterval(() => {
     stageIndex++;
     if (stageIndex >= STAGES.length) { stageIndex = STAGES.length - 1; return; }
@@ -59,7 +60,7 @@ export function showLoading(title, subtitle) {
         el.querySelector('.material-symbols-rounded').textContent = 'pending';
       }
     });
-  }, 6000);
+  }, 15000);
 }
 
 export function hideLoading() {
@@ -73,27 +74,27 @@ export function renderDealCard(deal) {
   const verdict = (deal.verdict || 'PASS').toUpperCase();
   const risk = (deal.risk_level || 'medium').toLowerCase();
 
-  const verdictLabels = { BUY: 'Buy', NEGOTIATE: 'Negotiate', PASS: 'Pass' };
+  const verdictLabels = { BUY: 'קנה', NEGOTIATE: 'נהל מו״מ', PASS: 'דלג' };
   const verdictIcons = { BUY: 'thumb_up', NEGOTIATE: 'handshake', PASS: 'block' };
-  const riskLabels = { low: 'Low risk', medium: 'Med risk', high: 'High risk' };
+  const riskLabels = { low: 'סיכון נמוך', medium: 'סיכון בינוני', high: 'סיכון גבוה' };
 
   return `
     <div class="deal-card">
       <div class="deal-card__header">
         <div class="deal-card__rank deal-card__rank--${rank}">#${rank}</div>
-        <div class="deal-card__price">${deal.price || 'N/A'}</div>
+        <div class="deal-card__price">${deal.price || 'לא זמין'}</div>
       </div>
       <div class="deal-card__body">
-        <h3 class="deal-card__title">${deal.title || 'Unknown product'}</h3>
+        <h3 class="deal-card__title">${deal.title || 'מוצר לא ידוע'}</h3>
         <div class="deal-card__seller">
-          ${icon('store', 16)} <strong>${deal.seller || 'Unknown'}</strong>
+          ${icon('store', 16)} <strong>${deal.seller || 'לא ידוע'}</strong>
         </div>
         <div class="deal-card__badges">
           <span class="badge badge-${verdict.toLowerCase()}">
             ${icon(verdictIcons[verdict] || 'block', 14)}
-            ${verdictLabels[verdict] || 'Pass'}
+            ${verdictLabels[verdict] || 'דלג'}
           </span>
-          <span class="badge badge-risk-${risk}">${riskLabels[risk] || 'Med risk'}</span>
+          <span class="badge badge-risk-${risk}">${riskLabels[risk] || 'סיכון בינוני'}</span>
         </div>
 
         ${deal.explanation ? `<p class="deal-card__why">${deal.explanation}</p>` : ''}
@@ -109,11 +110,11 @@ export function renderDealCard(deal) {
       <div class="deal-card__actions">
         ${deal.url && deal.url !== '#' ? `
           <a href="${deal.url}" target="_blank" rel="noopener" class="btn btn-filled btn-block">
-            ${icon('open_in_new', 18)} View deal
+            ${icon('open_in_new', 18)} צפה בעסקה
           </a>` : `
-          <button class="btn btn-filled btn-block" onclick="window.__toast('Demo — opens deal page in full app')">
-            ${icon('open_in_new', 18)} View deal
-          </button>`}
+          <span class="btn btn-filled btn-block btn-disabled">
+            ${icon('link_off', 18)} אין קישור
+          </span>`}
       </div>
     </div>`;
 }
@@ -124,9 +125,10 @@ export function renderHistoryCard(search) {
                      search.status === 'failed' ? 'error' : 'pending';
   const statusClass = search.status;
   const date = new Date(search.started_at);
-  const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const meta = search.status === 'completed' ? `${search.deals_found} deals` :
-               search.status === 'failed' ? 'Failed' : 'Running...';
+  const dateStr = date.toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' }) +
+                  ' בשעה ' + date.toLocaleTimeString('he-IL', { hour: 'numeric', minute: '2-digit' });
+  const meta = search.status === 'completed' ? `נמצאו ${search.deals_found} עסקאות` :
+               search.status === 'failed' ? 'נכשל' : 'רץ...';
 
   return `
     <div class="history-card" data-id="${search.id}" onclick="window.location.hash='#/results/${search.id}'">
@@ -146,17 +148,17 @@ export function renderHistoryCard(search) {
 
 // ---- Comparison Table ----
 export function renderComparisonTable(deals) {
-  const verdictLabels = { BUY: 'Buy', NEGOTIATE: 'Negotiate', PASS: 'Pass' };
+  const verdictLabels = { BUY: 'קנה', NEGOTIATE: 'מו״מ', PASS: 'דלג' };
 
   const rows = deals.map(d => {
     const v = (d.verdict || 'PASS').toUpperCase();
-    const price = d.price_numeric ? `₪${d.price_numeric.toFixed(0)}` : (d.price || 'N/A');
+    const price = d.price_numeric ? `₪${d.price_numeric.toFixed(0)}` : (d.price || 'לא זמין');
     return `<tr>
       <td><strong>#${d.rank || ''}</strong></td>
       <td>${(d.title || '').substring(0, 40)}${(d.title || '').length > 40 ? '...' : ''}</td>
       <td class="table-price">${price}</td>
-      <td>${d.seller || 'N/A'}</td>
-      <td><span class="badge badge-${v.toLowerCase()}">${verdictLabels[v] || 'Pass'}</span></td>
+      <td>${d.seller || 'לא זמין'}</td>
+      <td><span class="badge badge-${v.toLowerCase()}">${verdictLabels[v] || 'דלג'}</span></td>
       <td>${d.total_score || '-'}</td>
     </tr>`;
   }).join('');
@@ -165,7 +167,7 @@ export function renderComparisonTable(deals) {
     <div class="data-table-wrapper">
       <table class="data-table">
         <thead>
-          <tr><th>#</th><th>Product</th><th>Price</th><th>Seller</th><th>Verdict</th><th>Score</th></tr>
+          <tr><th>#</th><th>מוצר</th><th>מחיר</th><th>מוכר</th><th>המלצה</th><th>ציון</th></tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>

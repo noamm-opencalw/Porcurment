@@ -14,14 +14,15 @@ from src.db.models import Deal, SearchQuery, SearchResult, get_session, init_db
 class ProcurementFlow(Flow):
     """Flow: initialize → search → analyze → finalize."""
 
-    def __init__(self, product_query: str):
-        super().__init__()
+    def __init__(self, product_query: str, include_international: bool = False):
+        super().__init__(
+            product_query=product_query,
+            include_international=include_international,
+            search_results="",
+            final_output="",
+        )
         self.product_query = product_query
-        self.state = {
-            "product_query": product_query,
-            "search_results": "",
-            "final_output": "",
-        }
+        self.include_international = include_international
 
     @start()
     def initialize(self):
@@ -31,20 +32,21 @@ class ProcurementFlow(Flow):
         search = SearchQuery(
             product_query=self.product_query,
             status="running",
+            include_international=self.include_international,
             started_at=datetime.now(timezone.utc),
         )
         session.add(search)
         session.commit()
         self.state["search_id"] = search.id
         session.close()
-        print(f"[Porcurment] Starting search for: {self.product_query}")
+        print(f"[Porcurment] Starting search for: {self.product_query} (international={self.include_international})")
         return {"status": "initialized", "search_id": search.id}
 
     @listen(initialize)
     def run_search(self, init_result):
         """Run the search crew to find 10+ deals."""
         print("[Porcurment] Phase 1: Searching for deals...")
-        crew = build_search_crew(self.product_query)
+        crew = build_search_crew(self.product_query, self.include_international)
         result = crew.kickoff()
         self.state["search_results"] = str(result)
         print(f"[Porcurment] Search complete. Raw output length: {len(str(result))}")
@@ -67,13 +69,11 @@ class ProcurementFlow(Flow):
         session = get_session()
         search_id = self.state.get("search_id")
 
-        # Try to parse the final JSON output
         final_data = None
         raw = str(analysis_result)
         try:
             final_data = json.loads(raw)
         except json.JSONDecodeError:
-            # Try to extract JSON from the output
             start_idx = raw.find("{")
             end_idx = raw.rfind("}") + 1
             if start_idx >= 0 and end_idx > start_idx:
@@ -83,7 +83,6 @@ class ProcurementFlow(Flow):
                     pass
 
         if final_data and search_id:
-            # Save deals to DB
             deals = final_data.get("deals", [])
             deal_ids = []
             for deal_data in deals:
@@ -108,7 +107,6 @@ class ProcurementFlow(Flow):
                 session.flush()
                 deal_ids.append(deal.id)
 
-            # Save search result
             search_result = SearchResult(
                 search_id=search_id,
                 recommendation_summary=final_data.get("recommendation_summary", ""),
@@ -117,7 +115,6 @@ class ProcurementFlow(Flow):
             )
             session.add(search_result)
 
-            # Update search query status
             search_query = session.get(SearchQuery, search_id)
             if search_query:
                 search_query.status = "completed"
@@ -127,7 +124,6 @@ class ProcurementFlow(Flow):
             session.commit()
             print(f"[Porcurment] Saved {len(deals)} deals to database.")
         else:
-            # Mark as failed if we couldn't parse
             if search_id:
                 search_query = session.get(SearchQuery, search_id)
                 if search_query:
@@ -142,9 +138,9 @@ class ProcurementFlow(Flow):
         return raw
 
 
-def run_flow(product_query: str) -> str:
+def run_flow(product_query: str, include_international: bool = False) -> str:
     """Run the full procurement flow and return the result."""
-    flow = ProcurementFlow(product_query)
+    flow = ProcurementFlow(product_query, include_international=include_international)
     result = flow.kickoff()
     return str(result)
 

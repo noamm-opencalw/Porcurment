@@ -1,5 +1,5 @@
 /* ============================================
-   DealFinder — Reusable Components
+   פורקורמנט — Reusable Components
    ============================================ */
 
 /* ---- Buttons ---- */
@@ -44,6 +44,12 @@
 .btn-lg {
   padding: 12px 28px;
   font-size: 15px;
+}
+
+.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* ---- Badges ---- */
@@ -253,7 +259,7 @@
 .score-bar-fill--total_cost { background: var(--md-warning); }
 .score-bar-fill--authenticity { background: #7C4DFF; }
 .score-bar-fill--protection { background: var(--md-tertiary); }
-.score-bar-value { width: 28px; text-align: right; color: var(--md-on-surface-variant); font-weight: 500; }
+.score-bar-value { width: 28px; text-align: end; color: var(--md-on-surface-variant); font-weight: 500; }
 
 /* ---- Clarification Dialog ---- */
 .clarification-overlay {

@@ -1,23 +1,31 @@
-/* DealFinder — API Client & Data Layer */
+/* פורקורמנט — API Client & Data Layer */
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'http://localhost:8080';
 
 // ---- API calls ----
 
-export async function searchDeals(productQuery) {
-  const form = new FormData();
-  form.append('product_query', productQuery);
-  const resp = await fetch(`${API_BASE}/search`, { method: 'POST', body: form });
+export async function searchDeals(productQuery, includeInternational = false) {
+  const resp = await fetch(`${API_BASE}/api/search`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      product_query: productQuery,
+      include_international: includeInternational,
+    }),
+  });
+  if (!resp.ok) throw new Error(`חיפוש נכשל (${resp.status})`);
   return resp.json();
 }
 
 export async function getSearchHistory() {
   const resp = await fetch(`${API_BASE}/api/history`);
+  if (!resp.ok) throw new Error(`טעינת היסטוריה נכשלה (${resp.status})`);
   return resp.json();
 }
 
 export async function getSearchResult(searchId) {
   const resp = await fetch(`${API_BASE}/api/results/${searchId}`);
+  if (!resp.ok) throw new Error(`טעינת תוצאות נכשלה (${resp.status})`);
   return resp.json();
 }
 
@@ -28,114 +36,115 @@ export const searchState = {
   deals: null,
   allDeals: null,
   summary: null,
+  searchId: null,
 };
 
 // ---- Clarification questions by product category ----
 export const CLARIFICATION_RULES = [
   {
-    keywords: ['chair', 'כיסא'],
-    question: 'What is the chair for?',
+    keywords: ['כיסא', 'chair'],
+    question: 'למה הכיסא מיועד?',
     options: [
-      { label: 'Office / Computer', value: 'ergonomic office chair' },
-      { label: 'Dining room', value: 'dining chair' },
-      { label: 'Bar', value: 'bar stool chair' },
-      { label: 'Gaming', value: 'gaming chair' },
-      { label: 'Outdoor / Garden', value: 'outdoor garden chair' },
+      { label: 'משרד / מחשב', value: 'ergonomic office chair' },
+      { label: 'פינת אוכל', value: 'dining chair' },
+      { label: 'בר', value: 'bar stool chair' },
+      { label: 'גיימינג', value: 'gaming chair' },
+      { label: 'חוץ / גינה', value: 'outdoor garden chair' },
     ],
   },
   {
-    keywords: ['desk', 'שולחן'],
-    question: 'What type of desk?',
+    keywords: ['שולחן', 'desk', 'table'],
+    question: 'איזה סוג שולחן?',
     options: [
-      { label: 'Standing desk', value: 'standing desk' },
-      { label: 'Computer desk', value: 'computer desk' },
-      { label: 'Office desk', value: 'office desk' },
-      { label: 'Dining table', value: 'dining table' },
-      { label: 'Kids desk', value: 'kids study desk' },
+      { label: 'שולחן עמידה', value: 'standing desk' },
+      { label: 'שולחן מחשב', value: 'computer desk' },
+      { label: 'שולחן משרדי', value: 'office desk' },
+      { label: 'שולחן אוכל', value: 'dining table' },
+      { label: 'שולחן ילדים', value: 'kids study desk' },
     ],
   },
   {
-    keywords: ['keyboard', 'מקלדת'],
-    question: 'What kind of keyboard?',
+    keywords: ['מקלדת', 'keyboard'],
+    question: 'איזה סוג מקלדת?',
     options: [
-      { label: 'Mechanical', value: 'mechanical keyboard' },
-      { label: 'Wireless', value: 'wireless keyboard' },
-      { label: 'Ergonomic', value: 'ergonomic split keyboard' },
-      { label: 'Gaming', value: 'gaming keyboard RGB' },
-      { label: 'Compact / 60%', value: 'compact 60% keyboard' },
+      { label: 'מכנית', value: 'mechanical keyboard' },
+      { label: 'אלחוטית', value: 'wireless keyboard' },
+      { label: 'ארגונומית', value: 'ergonomic split keyboard' },
+      { label: 'גיימינג', value: 'gaming keyboard RGB' },
+      { label: 'קומפקטית / 60%', value: 'compact 60% keyboard' },
     ],
   },
   {
-    keywords: ['monitor', 'מסך'],
-    question: 'What will the monitor be used for?',
+    keywords: ['מסך', 'monitor'],
+    question: 'לאיזה שימוש המסך?',
     options: [
-      { label: 'Office work', value: 'office monitor IPS' },
-      { label: 'Gaming', value: 'gaming monitor 144Hz' },
-      { label: 'Design / Video', value: 'color-accurate monitor 4K' },
-      { label: 'Ultrawide', value: 'ultrawide curved monitor' },
-      { label: 'Portable', value: 'portable USB-C monitor' },
+      { label: 'עבודה משרדית', value: 'office monitor IPS' },
+      { label: 'גיימינג', value: 'gaming monitor 144Hz' },
+      { label: 'עיצוב / וידאו', value: 'color-accurate monitor 4K' },
+      { label: 'אולטרה-רחב', value: 'ultrawide curved monitor' },
+      { label: 'נייד', value: 'portable USB-C monitor' },
     ],
   },
   {
-    keywords: ['headphones', 'אוזניות'],
-    question: 'What type of headphones?',
+    keywords: ['אוזניות', 'headphones'],
+    question: 'איזה סוג אוזניות?',
     options: [
-      { label: 'Noise cancelling', value: 'noise cancelling headphones' },
-      { label: 'Wireless earbuds', value: 'wireless earbuds TWS' },
-      { label: 'Gaming headset', value: 'gaming headset with mic' },
-      { label: 'Studio / Pro', value: 'studio monitor headphones' },
-      { label: 'Sports / Running', value: 'sports wireless earbuds waterproof' },
+      { label: 'מבטלות רעשים', value: 'noise cancelling headphones' },
+      { label: 'אלחוטיות (אירבאדס)', value: 'wireless earbuds TWS' },
+      { label: 'גיימינג', value: 'gaming headset with mic' },
+      { label: 'סטודיו / מקצועיות', value: 'studio monitor headphones' },
+      { label: 'ספורט / ריצה', value: 'sports wireless earbuds waterproof' },
     ],
   },
   {
-    keywords: ['mouse', 'עכבר'],
-    question: 'What kind of mouse?',
+    keywords: ['עכבר', 'mouse'],
+    question: 'איזה סוג עכבר?',
     options: [
-      { label: 'Ergonomic', value: 'ergonomic vertical mouse' },
-      { label: 'Gaming', value: 'gaming mouse' },
-      { label: 'Wireless office', value: 'wireless office mouse' },
-      { label: 'Trackball', value: 'trackball mouse' },
+      { label: 'ארגונומי', value: 'ergonomic vertical mouse' },
+      { label: 'גיימינג', value: 'gaming mouse' },
+      { label: 'אלחוטי למשרד', value: 'wireless office mouse' },
+      { label: 'טראקבול', value: 'trackball mouse' },
     ],
   },
   {
-    keywords: ['laptop', 'מחשב נייד', 'לפטופ'],
-    question: 'What will the laptop be used for?',
+    keywords: ['לפטופ', 'מחשב נייד', 'laptop'],
+    question: 'לאיזה שימוש המחשב הנייד?',
     options: [
-      { label: 'Development / Work', value: 'laptop for programming 16GB RAM' },
-      { label: 'Student / Light use', value: 'lightweight student laptop' },
-      { label: 'Gaming', value: 'gaming laptop RTX' },
-      { label: 'Video editing', value: 'laptop for video editing' },
-      { label: 'Budget', value: 'budget laptop under 2000 ILS' },
+      { label: 'פיתוח / עבודה', value: 'laptop for programming 16GB RAM' },
+      { label: 'סטודנט / שימוש קל', value: 'lightweight student laptop' },
+      { label: 'גיימינג', value: 'gaming laptop RTX' },
+      { label: 'עריכת וידאו', value: 'laptop for video editing' },
+      { label: 'תקציב נמוך', value: 'budget laptop under 2000 ILS' },
     ],
   },
   {
-    keywords: ['camera', 'מצלמה'],
-    question: 'What type of camera?',
+    keywords: ['מצלמה', 'camera'],
+    question: 'איזה סוג מצלמה?',
     options: [
-      { label: 'Security / CCTV', value: 'security camera WiFi' },
-      { label: 'Mirrorless', value: 'mirrorless camera' },
-      { label: 'Webcam', value: 'webcam 1080p' },
-      { label: 'Action cam', value: 'action camera waterproof' },
+      { label: 'אבטחה', value: 'security camera WiFi' },
+      { label: 'מירורלס', value: 'mirrorless camera' },
+      { label: 'מצלמת רשת', value: 'webcam 1080p' },
+      { label: 'אקשן', value: 'action camera waterproof' },
     ],
   },
   {
-    keywords: ['printer', 'מדפסת'],
-    question: 'What type of printer?',
+    keywords: ['מדפסת', 'printer'],
+    question: 'איזה סוג מדפסת?',
     options: [
-      { label: 'Home / Inkjet', value: 'inkjet color printer' },
-      { label: 'Office / Laser', value: 'laser printer' },
-      { label: 'Photo printer', value: 'photo printer' },
-      { label: '3D printer', value: '3D printer' },
+      { label: 'ביתית / הזרקת דיו', value: 'inkjet color printer' },
+      { label: 'משרדית / לייזר', value: 'laser printer' },
+      { label: 'מדפסת תמונות', value: 'photo printer' },
+      { label: 'מדפסת תלת מימד', value: '3D printer' },
     ],
   },
   {
-    keywords: ['light', 'תאורה', 'מנורה'],
-    question: 'What kind of lighting?',
+    keywords: ['תאורה', 'מנורה', 'light'],
+    question: 'איזה סוג תאורה?',
     options: [
-      { label: 'Desk lamp', value: 'LED desk lamp' },
-      { label: 'Smart lighting', value: 'smart LED bulbs' },
-      { label: 'Ring light', value: 'ring light for streaming' },
-      { label: 'Ceiling / Room', value: 'LED ceiling light' },
+      { label: 'מנורת שולחן', value: 'LED desk lamp' },
+      { label: 'תאורה חכמה', value: 'smart LED bulbs' },
+      { label: 'טבעת אור', value: 'ring light for streaming' },
+      { label: 'תקרה / חדר', value: 'LED ceiling light' },
     ],
   },
 ];
@@ -146,7 +155,6 @@ export const CLARIFICATION_RULES = [
  */
 export function findClarification(query) {
   const q = query.toLowerCase().trim();
-  // Don't ask clarification if the query is already long/specific (3+ words)
   const wordCount = q.split(/\s+/).length;
   if (wordCount >= 3) return null;
 
@@ -159,79 +167,3 @@ export function findClarification(query) {
   }
   return null;
 }
-
-// ---- Demo data ----
-
-export const DEMO_DEALS = [
-  {
-    rank: 1,
-    title: 'Sony WH-1000XM5 Wireless Noise Cancelling Headphones',
-    description: 'Industry-leading NC with Auto NC Optimizer. 4 mics for clear calls. 30hr battery.',
-    price: '₪1,029',
-    price_numeric: 1029.00,
-    url: '#',
-    phone: '03-9419691',
-    seller: 'KSP',
-    verdict: 'BUY',
-    explanation: 'Best price from authorized dealer with full warranty. 18% below market average of ₪1,249.',
-    risk_level: 'low',
-    risk_notes: 'None',
-    negotiation_strategy: 'Check for active coupons. Club members get extra discount.',
-    score_breakdown: { price: 9, reliability: 10, total_cost: 9, authenticity: 10, protection: 8 },
-    total_score: 92,
-  },
-  {
-    rank: 2,
-    title: 'Bose QuietComfort Ultra — Refurbished',
-    description: 'Spatial audio with CustomTune. 90-day warranty. Excellent noise cancellation.',
-    price: '₪899',
-    price_numeric: 899.00,
-    url: '#',
-    phone: '03-6245555',
-    seller: 'Ivory',
-    verdict: 'NEGOTIATE',
-    explanation: 'Lowest price — ₪400 below retail. Refurbished from authorized dealer.',
-    risk_level: 'medium',
-    risk_notes: 'Refurbished — cosmetic wear possible. 90-day warranty only.',
-    negotiation_strategy: 'Ask about open-box units with original packaging.',
-    score_breakdown: { price: 10, reliability: 8, total_cost: 9, authenticity: 7, protection: 6 },
-    total_score: 81,
-  },
-  {
-    rank: 3,
-    title: 'Apple AirPods Max — Lightning (Previous Gen)',
-    description: 'Premium build, spatial audio with head tracking, active noise cancellation.',
-    price: '₪749',
-    price_numeric: 749.00,
-    url: '#',
-    phone: '*6282',
-    seller: 'Bug',
-    verdict: 'BUY',
-    explanation: '64% off retail ₪2,049. Brand new with full Apple warranty. Lightning clearance.',
-    risk_level: 'low',
-    risk_notes: 'Lightning connector — no USB-C.',
-    negotiation_strategy: 'Check for free shipping. Combine with cashback credit card.',
-    score_breakdown: { price: 10, reliability: 9, total_cost: 9, authenticity: 9, protection: 5 },
-    total_score: 78,
-  },
-];
-
-export const DEMO_SUMMARY = 'Analyzed 10 deals from major retailers. Sony WH-1000XM5 from KSP offers the best balance of price, reliability and features. All top picks include free shipping and buyer protection.';
-
-export const DEMO_ALL_DEALS = [
-  ...DEMO_DEALS,
-  { rank: 4, title: 'Sennheiser Momentum 4 Wireless', price: '₪1,199', price_numeric: 1199.00, seller: 'iDigital', verdict: 'NEGOTIATE', total_score: 74, risk_level: 'low' },
-  { rank: 5, title: 'Sony WH-1000XM4 (Previous Gen)', price: '₪749', price_numeric: 749.00, seller: 'Zap', verdict: 'NEGOTIATE', total_score: 69, risk_level: 'medium' },
-  { rank: 6, title: 'JBL Tour One M2 Wireless NC', price: '₪799', price_numeric: 799.00, seller: 'Machsanei Hashmal', verdict: 'PASS', total_score: 62, risk_level: 'low' },
-  { rank: 7, title: 'Beats Studio Pro', price: '₪679', price_numeric: 679.00, seller: 'Amazon.co.il', verdict: 'PASS', total_score: 58, risk_level: 'low' },
-  { rank: 8, title: 'Bowers & Wilkins PX7 S2e', price: '₪1,399', price_numeric: 1399.00, seller: 'iDigital', verdict: 'PASS', total_score: 55, risk_level: 'low' },
-];
-
-export const DEMO_HISTORY = [
-  { id: 1, product_query: 'Noise cancelling headphones', status: 'completed', deals_found: 3, started_at: '2026-03-30T10:24:00Z' },
-  { id: 2, product_query: 'Ergonomic office chair', status: 'completed', deals_found: 3, started_at: '2026-03-29T15:15:00Z' },
-  { id: 3, product_query: '27" 4K monitor', status: 'completed', deals_found: 3, started_at: '2026-03-28T11:42:00Z' },
-  { id: 4, product_query: 'Industrial coffee machine', status: 'failed', deals_found: 0, started_at: '2026-03-27T09:05:00Z' },
-  { id: 5, product_query: 'Standing desk', status: 'completed', deals_found: 3, started_at: '2026-03-26T14:30:00Z' },
-  { id: 6, product_query: 'Wireless keyboard & mouse', status: 'completed', deals_found: 3, started_at: '2026-03-25T16:18:00Z' },
-];

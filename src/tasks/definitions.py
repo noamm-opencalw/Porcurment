@@ -1,146 +1,152 @@
 from crewai import Agent, Task
 
 
-def create_broad_search_task(agent: Agent, product_query: str) -> Task:
+def create_broad_search_task(agent: Agent, product_query: str, include_international: bool = False) -> Task:
+    if include_international:
+        channels = """3. חפש במספר ערוצים בעדיפות לזמינות בישראל:
+   - קמעונאים ישראליים: KSP, Ivory, Bug, Zap, iDigital, מחסני חשמל
+   - אתרים בינלאומיים עם משלוח לישראל: Amazon, eBay, AliExpress
+   - אתרי השוואת מחירים ומצברי עסקאות (Zap, Pricez)
+4. כלול עסקאות גם ממקורות ישראליים וגם בינלאומיים עם משלוח לישראל."""
+    else:
+        channels = """3. חפש רק בחנויות ואתרים ישראליים:
+   - קמעונאים ישראליים: KSP, Ivory, Bug, Zap, iDigital, מחסני חשמל
+   - Amazon.co.il
+   - אתרי השוואת מחירים (Zap, Pricez)
+4. התמקד אך ורק בעסקאות ממקורות ישראליים. אל תחפש באתרים בינלאומיים."""
+
     return Task(
-        description=f"""Search for deals on the specified product available in Israel: {product_query}
+        description=f"""חפש עסקאות על המוצר הבא הזמין בישראל: {product_query}
 
-1. Run 3-4 different search queries using variations:
-   - "{product_query} מחיר" (price in Hebrew)
+1. הרץ 3-4 שאילתות חיפוש שונות עם וריאציות:
+   - "{product_query} מחיר"
    - "{product_query} best price Israel"
-   - "{product_query} קנייה אונליין ישראל" (buy online Israel)
-   - "{product_query} buy online ship to Israel"
-2. For each promising result, use the deal_scraper to extract:
-   product title, price, URL, seller name, phone number, and description.
-3. Search across multiple channels prioritizing Israeli availability:
-   - Israeli retailers: KSP, Ivory, Bug, Zap, iDigital, Machsanei Hashmal
-   - International with Israel shipping: Amazon, eBay, AliExpress
-   - Israeli B2B platforms and wholesale suppliers
-   - Israeli deal aggregators and price comparison sites (Zap, Pricez)
-4. Collect at least 10 distinct deals with verified prices.
-5. Include deals from both Israeli retail and international sources that ship to Israel.
-6. For each deal, note the source type: retail, wholesale, marketplace, or b2b.
-7. Prices should be in ILS (₪) when available, or USD with shipping-to-Israel noted.
+   - "{product_query} קנייה אונליין ישראל"
+   - "{product_query} השוואת מחירים"
+2. לכל תוצאה מבטיחה, השתמש ב-deal_scraper כדי לחלץ:
+   שם מוצר, מחיר, URL, שם מוכר, מספר טלפון, ותיאור.
+{channels}
+5. אסוף לפחות 10 עסקאות שונות עם מחירים מאומתים.
+6. לכל עסקה, ציין את סוג המקור: retail, marketplace, או price_comparison.
+7. מחירים צריכים להיות ב-₪ (שקלים) כשזמין, או בדולרים עם ציון משלוח לישראל.
 
-CRITICAL: Only include deals that are currently available and can be shipped to or purchased in Israel. Skip expired deals.""",
-        expected_output="""A JSON list of 10+ deals. Each deal must have:
-- title: product name/listing title
-- price: numeric price (e.g. 299.90)
-- currency: "ILS" or "USD" if international
-- url: direct link to the deal
-- seller: retailer/supplier name
-- phone: contact phone number (or "N/A")
-- description: 2-3 sentence product description
-- source_type: "retail" | "wholesale" | "marketplace" | "b2b"
-- shipping_info: shipping cost to Israel, "free", or "unknown"
+חשוב: כלול רק עסקאות שזמינות כעת וניתנות לרכישה/משלוח בישראל. דלג על עסקאות שפג תוקפן.""",
+        expected_output="""רשימת JSON של 10+ עסקאות. לכל עסקה חייב להיות:
+- title: שם המוצר/כותרת
+- price: מחיר מספרי (למשל 299.90)
+- currency: "ILS" או "USD" לבינלאומי
+- url: קישור ישיר לעסקה
+- seller: שם החנות/מוכר
+- phone: מספר טלפון ליצירת קשר (או "N/A")
+- description: תיאור מוצר של 2-3 משפטים
+- source_type: "retail" | "marketplace" | "price_comparison"
+- shipping_info: עלות משלוח, "חינם", או "לא ידוע"
 
-Output ONLY the JSON array, no other text.""",
+פלט אך ורק את מערך ה-JSON, בלי טקסט אחר.""",
         agent=agent,
     )
 
 
 def create_deal_enrichment_task(agent: Agent) -> Task:
     return Task(
-        description="""For each of the 10 deals found in the previous search:
+        description="""לכל אחת מ-10 העסקאות שנמצאו בחיפוש הקודם:
 
-1. Visit the deal URL using deal_scraper and extract additional details if missing.
-2. Verify the price is current (not expired or out of stock).
-3. Look for phone numbers on the seller's contact page if missing.
-4. Check for bulk/quantity discount tiers.
-5. Note any coupon codes or active promotions.
-6. Flag any deals that look suspicious (too cheap, unknown seller, no contact info).
+1. בקר ב-URL של העסקה באמצעות deal_scraper וחלץ פרטים נוספים אם חסרים.
+2. ודא שהמחיר עדכני (לא פג תוקף או אזל מהמלאי).
+3. חפש מספרי טלפון בדף יצירת הקשר של המוכר אם חסר.
+4. ציין קודי קופון או מבצעים פעילים.
+5. סמן עסקאות שנראות חשודות (זול מדי, מוכר לא ידוע, ללא פרטי קשר).
 
-CRITICAL: Keep all deals even if some details are missing — mark them as unverified.""",
-        expected_output="""Updated JSON list with enriched deal data. Each deal now includes:
-- All fields from the broad search
-- verified: true/false (is the price confirmed current?)
-- bulk_pricing: discount tiers if available (or null)
-- coupon_codes: any active codes (or null)
-- suspicious_flags: list of concerns (or empty list [])
+חשוב: שמור על כל העסקאות גם אם חסרים פרטים — סמן אותן כלא מאומתות.""",
+        expected_output="""רשימת JSON מעודכנת עם נתוני עסקאות מועשרים. כל עסקה כוללת כעת:
+- כל השדות מהחיפוש הרחב
+- verified: true/false (האם המחיר מאושר כעדכני?)
+- coupon_codes: קודי קופון פעילים (או null)
+- suspicious_flags: רשימת חשדות (או רשימה ריקה [])
 
-Output ONLY the JSON array, no other text.""",
+פלט אך ורק את מערך ה-JSON, בלי טקסט אחר.""",
         agent=agent,
     )
 
 
 def create_deal_analysis_task(agent: Agent, product_query: str) -> Task:
     return Task(
-        description=f"""Analyze and score all discovered deals for "{product_query}" for Israeli buyers:
+        description=f"""נתח ודרג את כל העסקאות שנמצאו עבור "{product_query}" עבור קונה ישראלי פרטי:
 
-1. Use the price_comparator tool to compare all deal prices and find the market average in Israel.
-2. Score each deal on 5 criteria (1-10 each):
-   - Price competitiveness (vs average Israeli market price from comparator)
-   - Supplier reliability (known brand? established seller in Israel? contact info available?)
-   - Total cost (including shipping to Israel, מע״מ/VAT, customs duties if applicable)
-   - Product authenticity (genuine product? authorized Israeli reseller? suspicious flags?)
-   - Buyer protection (Israeli consumer law compliance, return policy, warranty valid in Israel, payment security)
-3. Calculate a weighted total score:
-   Price: 30%, Reliability: 25%, Total Cost: 20%, Authenticity: 15%, Protection: 10%
-4. Rank all deals by total score (highest first).
-5. Select the top 3 deals.
-6. For each top deal, write a 2-3 sentence explanation of WHY it's a good deal for Israeli buyers.
-7. Include a negotiation tip for each deal.
+1. השתמש בכלי price_comparator כדי להשוות את כל מחירי העסקאות ולמצוא את ממוצע השוק בישראל.
+2. דרג כל עסקה ב-5 קריטריונים (1-10 לכל אחד):
+   - תחרותיות מחיר (מול ממוצע השוק הישראלי מהמשווה)
+   - אמינות ספק (מותג ידוע? מוכר מבוסס בישראל? פרטי קשר זמינים?)
+   - עלות כוללת (כולל משלוח לישראל, מע״מ, מכס אם רלוונטי)
+   - מקוריות מוצר (מוצר מקורי? משווק מורשה בישראל? דגלים חשודים?)
+   - הגנת קונה (ציות לחוק הגנת הצרכן הישראלי, מדיניות החזרה, אחריות תקפה בישראל, אבטחת תשלום)
+3. חשב ציון כולל משוקלל:
+   מחיר: 30%, אמינות: 25%, עלות כוללת: 20%, מקוריות: 15%, הגנה: 10%
+4. דרג את כל העסקאות לפי ציון כולל (הגבוה ביותר קודם).
+5. בחר את 3 העסקאות המובילות.
+6. לכל עסקה מובילה, כתוב הסבר של 2-3 משפטים למה זו עסקה טובה לצרכן ישראלי.
+7. כלול טיפ משא ומתן לכל עסקה.
 
-CRITICAL: Factor in suspicious_flags when scoring. Deals with many red flags should score low.
-For international deals, factor in the total landed cost in Israel (price + shipping + customs + VAT).""",
-        expected_output="""JSON object with:
-- "all_deals_scored": list of all deals with their scores
-- "top_3": list of the 3 best deals, each containing:
+חשוב: קח בחשבון suspicious_flags בדירוג. עסקאות עם הרבה דגלים אדומים צריכות לקבל ציון נמוך.
+לעסקאות בינלאומיות, חשב את העלות הכוללת בישראל (מחיר + משלוח + מכס + מע״מ).""",
+        expected_output="""אובייקט JSON עם:
+- "all_deals_scored": רשימת כל העסקאות עם הציונים שלהן
+- "top_3": רשימת 3 העסקאות הטובות ביותר, כל אחת מכילה:
   - title, price, url, seller, phone, description
   - total_score (0-100)
   - score_breakdown: {"price": X, "reliability": X, "total_cost": X, "authenticity": X, "protection": X}
-  - explanation: why this deal stands out (2-3 sentences)
-  - negotiation_tip: how to potentially get a better price
+  - explanation: למה העסקה הזו בולטת (2-3 משפטים)
+  - negotiation_tip: איך אפשר לקבל מחיר טוב יותר
 
-Output ONLY valid JSON, no other text.""",
+פלט אך ורק JSON תקין, בלי טקסט אחר.""",
         agent=agent,
     )
 
 
 def create_final_recommendation_task(agent: Agent, product_query: str) -> Task:
     return Task(
-        description=f"""Review the analyst's top 3 deals for "{product_query}" and produce the final recommendation:
+        description=f"""בדוק את 3 העסקאות המובילות של המנתח עבור "{product_query}" והפק המלצה סופית:
 
-1. Validate each deal meets procurement standards:
-   - Has a working URL
-   - Has a verifiable price
-   - Seller is identifiable
-2. Assign a verdict to each deal: BUY / NEGOTIATE / PASS
-   - BUY: Great deal, purchase immediately
-   - NEGOTIATE: Good potential, try to get a better price first
-   - PASS: Not recommended despite being in top 3
-3. Add a risk assessment for each deal (low/medium/high + notes).
-4. Write a 2-3 sentence executive summary of the overall search results.
-5. Ensure ALL required fields are present for UI display:
-   description, link, phone, price, and explanation.
+1. ודא שכל עסקה עומדת בסטנדרטים:
+   - יש URL עובד
+   - יש מחיר ניתן לאימות
+   - המוכר ניתן לזיהוי
+2. הקצה המלצה לכל עסקה: קנה / נהל מו״מ / דלג
+   - קנה: עסקה מצוינת, לרכוש מיד
+   - נהל מו״מ: פוטנציאל טוב, כדאי לנסות להוריד מחיר קודם
+   - דלג: לא מומלץ למרות שנמצא ב-3 המובילים
+3. הוסף הערכת סיכון לכל עסקה (נמוך/בינוני/גבוה + הערות).
+4. כתוב סיכום מנהלים של 2-3 משפטים על תוצאות החיפוש הכוללות.
+5. ודא שכל השדות הנדרשים קיימים לתצוגת ממשק:
+   תיאור, קישור, טלפון, מחיר, והסבר.
 
-CRITICAL: The output must be valid JSON matching the exact schema below.""",
-        expected_output="""JSON object:
+חשוב: הפלט חייב להיות JSON תקין בדיוק לפי הסכמה למטה.""",
+        expected_output="""אובייקט JSON:
 {{
-  "product_searched": "<the product query>",
-  "recommendation_summary": "<2-3 sentence executive summary>",
+  "product_searched": "<שאילתת המוצר>",
+  "recommendation_summary": "<סיכום מנהלים של 2-3 משפטים>",
   "deals": [
     {{
       "rank": 1,
-      "title": "<product title>",
-      "description": "<full description>",
-      "price": "<formatted price e.g. ₪299.90>",
+      "title": "<שם מוצר>",
+      "description": "<תיאור מלא>",
+      "price": "<מחיר מפורמט למשל ₪299.90>",
       "price_numeric": 299.90,
-      "url": "<link to deal>",
-      "phone": "<seller phone or N/A>",
-      "seller": "<seller name>",
+      "url": "<קישור לעסקה>",
+      "phone": "<טלפון מוכר או N/A>",
+      "seller": "<שם מוכר>",
       "verdict": "BUY",
-      "explanation": "<why this is a good deal, 2-3 sentences>",
+      "explanation": "<למה זו עסקה טובה, 2-3 משפטים>",
       "risk_level": "low",
-      "risk_notes": "<specific concerns or 'None'>",
-      "negotiation_strategy": "<suggested approach>",
+      "risk_notes": "<חששות ספציפיים או 'אין'>",
+      "negotiation_strategy": "<גישה מוצעת>",
       "score_breakdown": {{"price": 9, "reliability": 8, "total_cost": 8, "authenticity": 9, "protection": 7}},
       "total_score": 85
     }}
   ]
 }}
 
-Output ONLY valid JSON, no other text.""",
+פלט אך ורק JSON תקין, בלי טקסט אחר.""",
         agent=agent,
     )
 
@@ -149,28 +155,28 @@ def create_send_report_task(
     agent: Agent, product_query: str, recipient_email: str
 ) -> Task:
     return Task(
-        description=f"""Send the top 3 deal recommendations for "{product_query}" via email:
+        description=f"""שלח את 3 המלצות העסקאות המובילות עבור "{product_query}" במייל:
 
-1. Format the deals into a professional HTML email with:
-   - Subject: "דוח רכש: העסקאות המובילות עבור {product_query}"
-   - A brief intro paragraph
-   - A card-style layout for each deal showing: title, price, seller, link, phone
-   - Each deal's explanation and verdict
-   - A footer with "נוצר על ידי Porcurment AI"
-2. Send to: {recipient_email}""",
-        expected_output="Confirmation JSON with success status and message ID.",
+1. פרמט את העסקאות לאימייל HTML מקצועי עם:
+   - נושא: "דוח עסקאות: ההמלצות המובילות עבור {product_query}"
+   - פסקת פתיחה קצרה
+   - פריסת כרטיסים לכל עסקה: שם, מחיר, מוכר, קישור, טלפון
+   - הסבר והמלצה לכל עסקה
+   - כותרת תחתית "נוצר על ידי פורקורמנט AI"
+2. שלח ל: {recipient_email}""",
+        expected_output="JSON אישור עם סטטוס הצלחה ומזהה הודעה.",
         agent=agent,
     )
 
 
 def create_search_emails_task(agent: Agent, product_query: str) -> Task:
     return Task(
-        description=f"""Check email inbox for supplier quotes related to "{product_query}":
+        description=f"""בדוק תיבת מייל להצעות מחיר מספקים הקשורות ל-"{product_query}":
 
-1. Search for recent emails with the product name in the subject line.
-2. Extract pricing, terms, and contact info from each email found.
-3. Return structured data for each quote.""",
-        expected_output="""JSON list of supplier quotes from email:
+1. חפש מיילים אחרונים עם שם המוצר בנושא.
+2. חלץ תמחור, תנאים ופרטי קשר מכל מייל שנמצא.
+3. החזר נתונים מובנים לכל הצעת מחיר.""",
+        expected_output="""רשימת JSON של הצעות מחיר מספקים:
 [{{"from": "...", "subject": "...", "price": "...", "terms": "...", "contact": "..."}}]""",
         agent=agent,
     )
