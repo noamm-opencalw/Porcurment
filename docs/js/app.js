@@ -1,4 +1,4 @@
-/* Porcurment — SPA Router & App Shell */
+/* DealFinder — SPA Router & App Shell */
 
 import { icon } from './icons.js';
 import {
@@ -81,18 +81,18 @@ function createAppShell() {
   if (header) {
     header.innerHTML = `
       <a class="header__brand" onclick="window.location.hash='#/'">
-        ${icon('shopping_cart', 28)}
-        <span class="header__brand-text">Porcurment</span>
+        ${icon('bolt', 28)}
+        <span class="header__brand-text">DealFinder</span>
       </a>
       <nav class="header__nav">
         <a class="header__nav-item" data-view="home" onclick="window.location.hash='#/'">
-          ${icon('search', 20)} חיפוש
+          ${icon('search', 20)} Search
         </a>
         <a class="header__nav-item" data-view="results" onclick="window.location.hash='#/results'">
-          ${icon('analytics', 20)} תוצאות
+          ${icon('analytics', 20)} Results
         </a>
         <a class="header__nav-item" data-view="history" onclick="window.location.hash='#/history'">
-          ${icon('history', 20)} היסטוריה
+          ${icon('history', 20)} History
         </a>
       </nav>
     `;
@@ -104,15 +104,15 @@ function createAppShell() {
     bottomNav.innerHTML = `
       <a class="bottom-nav__item" data-view="home" onclick="window.location.hash='#/'">
         ${icon('search')}
-        <span>חיפוש</span>
+        <span>Search</span>
       </a>
       <a class="bottom-nav__item" data-view="results" onclick="window.location.hash='#/results'">
         ${icon('analytics')}
-        <span>תוצאות</span>
+        <span>Results</span>
       </a>
       <a class="bottom-nav__item" data-view="history" onclick="window.location.hash='#/history'">
         ${icon('history')}
-        <span>היסטוריה</span>
+        <span>History</span>
       </a>
     `;
   }

@@ -1,9 +1,8 @@
-/* Porcurment — API Client & Data Layer */
+/* DealFinder — API Client & Data Layer */
 
-// Backend URL — change for production deployment
 const API_BASE = 'http://localhost:5000';
 
-// ---- API calls (for when Flask backend is running) ----
+// ---- API calls ----
 
 export async function searchDeals(productQuery) {
   const form = new FormData();
@@ -22,78 +21,78 @@ export async function getSearchResult(searchId) {
   return resp.json();
 }
 
-// ---- Demo data (used when no backend is available) ----
+// ---- Demo data ----
 
 export const DEMO_DEALS = [
   {
     rank: 1,
-    title: 'Sony WH-1000XM5 אוזניות אלחוטיות עם מסנן רעשים',
-    description: 'ביטול רעשים מוביל בתעשייה עם Auto NC Optimizer. שיחות ברורות עם 4 מיקרופונים. עד 30 שעות סוללה עם טעינה מהירה.',
-    price: '₪1,029.00',
+    title: 'Sony WH-1000XM5 Wireless Noise Cancelling Headphones',
+    description: 'Industry-leading NC with Auto NC Optimizer. 4 mics for clear calls. 30hr battery.',
+    price: '₪1,029',
     price_numeric: 1029.00,
     url: '#',
     phone: '03-9419691',
     seller: 'KSP',
     verdict: 'BUY',
-    explanation: 'המחיר הטוב ביותר ממשווק מורשה עם אחריות מלאה. מדיניות החזרה של 14 יום. המחיר נמוך ב-18% מהממוצע בשוק של ₪1,249.',
+    explanation: 'Best price from authorized dealer with full warranty. 18% below market average of ₪1,249.',
     risk_level: 'low',
-    risk_notes: 'אין',
-    negotiation_strategy: 'בדקו קופונים פעילים באתר. לקוחות מועדון KSP מקבלים הנחה נוספת.',
+    risk_notes: 'None',
+    negotiation_strategy: 'Check for active coupons. Club members get extra discount.',
     score_breakdown: { price: 9, reliability: 10, total_cost: 9, authenticity: 10, protection: 8 },
     total_score: 92,
   },
   {
     rank: 2,
-    title: 'Bose QuietComfort Ultra — אוזניות מחודשות',
-    description: 'אוזניות Bose QC Ultra מחודשות עם שמע מרחבי וטכנולוגיית CustomTune. כולל 90 יום אחריות. ביטול רעשים מצוין.',
-    price: '₪899.00',
+    title: 'Bose QuietComfort Ultra — Refurbished',
+    description: 'Spatial audio with CustomTune. 90-day warranty. Excellent noise cancellation.',
+    price: '₪899',
     price_numeric: 899.00,
     url: '#',
     phone: '03-6245555',
     seller: 'Ivory',
     verdict: 'NEGOTIATE',
-    explanation: 'המחיר הנמוך ביותר — ₪400 מתחת למחיר הקמעונאי. מוצר מחודש ממשווק מורשה עם אחריות. אידיאלי למודעי תקציב.',
+    explanation: 'Lowest price — ₪400 below retail. Refurbished from authorized dealer.',
     risk_level: 'medium',
-    risk_notes: 'מחודש — ייתכנו סימני שימוש קוסמטיים. אחריות 90 יום בלבד.',
-    negotiation_strategy: 'שאלו על יחידות open-box עם אריזה מקורית. בקשו התאמת מחיר מול חנויות אחרות.',
+    risk_notes: 'Refurbished — cosmetic wear possible. 90-day warranty only.',
+    negotiation_strategy: 'Ask about open-box units with original packaging.',
     score_breakdown: { price: 10, reliability: 8, total_cost: 9, authenticity: 7, protection: 6 },
     total_score: 81,
   },
   {
     rank: 3,
-    title: 'Apple AirPods Max — Lightning (דור קודם)',
-    description: 'איכות בנייה פרימיום עם שמע חישובי, שמע מרחבי עם מעקב ראש דינמי, וביטול רעשים אקטיבי. מחיר מבצע על הדור הקודם.',
-    price: '₪749.00',
+    title: 'Apple AirPods Max — Lightning (Previous Gen)',
+    description: 'Premium build, spatial audio with head tracking, active noise cancellation.',
+    price: '₪749',
     price_numeric: 749.00,
     url: '#',
     phone: '*6282',
     seller: 'Bug',
     verdict: 'BUY',
-    explanation: 'ערך מדהים — 64% הנחה ממחיר ₪2,049. חדש לגמרי עם אחריות Apple מלאה. גרסת Lightning במבצע בגלל המעבר ל-USB-C — אותה איכות שמע.',
+    explanation: '64% off retail ₪2,049. Brand new with full Apple warranty. Lightning clearance.',
     risk_level: 'low',
-    risk_notes: 'חיבור Lightning — ללא USB-C. ייתכן שלא יקבל עדכוני firmware עתידיים.',
-    negotiation_strategy: 'בדקו משלוח חינם. שלבו עם כרטיס אשראי שמציע קאשבק.',
+    risk_notes: 'Lightning connector — no USB-C.',
+    negotiation_strategy: 'Check for free shipping. Combine with cashback credit card.',
     score_breakdown: { price: 10, reliability: 9, total_cost: 9, authenticity: 9, protection: 5 },
     total_score: 78,
   },
 ];
 
-export const DEMO_SUMMARY = 'לאחר ניתוח 10 עסקאות בקמעונאים מרכזיים, פלטפורמות סיטונאיות ומשווקים מורשים בישראל, זיהינו שלוש אפשרויות מצוינות. ה-Sony WH-1000XM5 מ-KSP מציע את האיזון הטוב ביותר בין מחיר, אמינות ותכונות. כל הבחירות המובילות כוללות משלוח חינם והגנת קונה חזקה.';
+export const DEMO_SUMMARY = 'Analyzed 10 deals from major retailers. Sony WH-1000XM5 from KSP offers the best balance of price, reliability and features. All top picks include free shipping and buyer protection.';
 
 export const DEMO_ALL_DEALS = [
   ...DEMO_DEALS,
-  { rank: 4, title: 'Sennheiser Momentum 4 Wireless', price: '₪1,199.00', price_numeric: 1199.00, seller: 'iDigital', verdict: 'NEGOTIATE', total_score: 74, risk_level: 'low' },
-  { rank: 5, title: 'Sony WH-1000XM4 (דור קודם)', price: '₪749.00', price_numeric: 749.00, seller: 'Zap', verdict: 'NEGOTIATE', total_score: 69, risk_level: 'medium' },
-  { rank: 6, title: 'JBL Tour One M2 Wireless NC', price: '₪799.00', price_numeric: 799.00, seller: 'Machsanei Hashmal', verdict: 'PASS', total_score: 62, risk_level: 'low' },
-  { rank: 7, title: 'Beats Studio Pro', price: '₪679.00', price_numeric: 679.00, seller: 'Amazon.co.il', verdict: 'PASS', total_score: 58, risk_level: 'low' },
-  { rank: 8, title: 'Bowers & Wilkins PX7 S2e', price: '₪1,399.00', price_numeric: 1399.00, seller: 'iDigital', verdict: 'PASS', total_score: 55, risk_level: 'low' },
+  { rank: 4, title: 'Sennheiser Momentum 4 Wireless', price: '₪1,199', price_numeric: 1199.00, seller: 'iDigital', verdict: 'NEGOTIATE', total_score: 74, risk_level: 'low' },
+  { rank: 5, title: 'Sony WH-1000XM4 (Previous Gen)', price: '₪749', price_numeric: 749.00, seller: 'Zap', verdict: 'NEGOTIATE', total_score: 69, risk_level: 'medium' },
+  { rank: 6, title: 'JBL Tour One M2 Wireless NC', price: '₪799', price_numeric: 799.00, seller: 'Machsanei Hashmal', verdict: 'PASS', total_score: 62, risk_level: 'low' },
+  { rank: 7, title: 'Beats Studio Pro', price: '₪679', price_numeric: 679.00, seller: 'Amazon.co.il', verdict: 'PASS', total_score: 58, risk_level: 'low' },
+  { rank: 8, title: 'Bowers & Wilkins PX7 S2e', price: '₪1,399', price_numeric: 1399.00, seller: 'iDigital', verdict: 'PASS', total_score: 55, risk_level: 'low' },
 ];
 
 export const DEMO_HISTORY = [
-  { id: 1, product_query: 'אוזניות עם מסנן רעשים', status: 'completed', deals_found: 3, started_at: '2026-03-30T10:24:00Z' },
-  { id: 2, product_query: 'כיסא משרדי ארגונומי', status: 'completed', deals_found: 3, started_at: '2026-03-29T15:15:00Z' },
-  { id: 3, product_query: 'מסך 27 אינץ 4K', status: 'completed', deals_found: 3, started_at: '2026-03-28T11:42:00Z' },
-  { id: 4, product_query: 'מכונת קפה תעשייתית', status: 'failed', deals_found: 0, started_at: '2026-03-27T09:05:00Z' },
-  { id: 5, product_query: 'שולחן עמידה מתכוונן', status: 'completed', deals_found: 3, started_at: '2026-03-26T14:30:00Z' },
-  { id: 6, product_query: 'מקלדת ועכבר אלחוטיים', status: 'completed', deals_found: 3, started_at: '2026-03-25T16:18:00Z' },
+  { id: 1, product_query: 'Noise cancelling headphones', status: 'completed', deals_found: 3, started_at: '2026-03-30T10:24:00Z' },
+  { id: 2, product_query: 'Ergonomic office chair', status: 'completed', deals_found: 3, started_at: '2026-03-29T15:15:00Z' },
+  { id: 3, product_query: '27" 4K monitor', status: 'completed', deals_found: 3, started_at: '2026-03-28T11:42:00Z' },
+  { id: 4, product_query: 'Industrial coffee machine', status: 'failed', deals_found: 0, started_at: '2026-03-27T09:05:00Z' },
+  { id: 5, product_query: 'Standing desk', status: 'completed', deals_found: 3, started_at: '2026-03-26T14:30:00Z' },
+  { id: 6, product_query: 'Wireless keyboard & mouse', status: 'completed', deals_found: 3, started_at: '2026-03-25T16:18:00Z' },
 ];

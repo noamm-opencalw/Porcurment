@@ -1,4 +1,4 @@
-/* Porcurment — Reusable UI Components */
+/* DealFinder — Reusable UI Components */
 
 import { icon } from './icons.js';
 
@@ -19,9 +19,9 @@ export function showToast(message, duration = 3000) {
 
 // ---- Loading overlay ----
 const STAGES = [
-  { key: 'search', label: 'מחפשים בחנויות וספקים...' },
-  { key: 'analyze', label: 'מנתחים ומשווים מחירים...' },
-  { key: 'rank', label: 'מדרגים את העסקאות המובילות...' },
+  { key: 'search', label: 'Scanning suppliers...' },
+  { key: 'analyze', label: 'Comparing prices...' },
+  { key: 'rank', label: 'Ranking top deals...' },
 ];
 
 let stageIndex = 0;
@@ -72,75 +72,47 @@ export function renderDealCard(deal) {
   const rank = deal.rank || 1;
   const verdict = (deal.verdict || 'PASS').toUpperCase();
   const risk = (deal.risk_level || 'medium').toLowerCase();
-  const breakdown = deal.score_breakdown || {};
 
-  const verdictLabels = { BUY: 'לקנות', NEGOTIATE: 'לנהל מו״מ', PASS: 'לוותר' };
-  const riskLabels = { low: 'נמוך', medium: 'בינוני', high: 'גבוה' };
-  const scoreLabels = { price: 'מחיר', reliability: 'אמינות', total_cost: 'עלות כוללת', authenticity: 'מקוריות', protection: 'הגנה' };
-
-  let scoreBarsHTML = '';
-  for (const [key, label] of Object.entries(scoreLabels)) {
-    const val = breakdown[key] || 5;
-    scoreBarsHTML += `
-      <div class="score-bar-row">
-        <span class="score-bar-label">${label}</span>
-        <div class="score-bar-track"><div class="score-bar-fill score-bar-fill--${key}" data-width="${val * 10}"></div></div>
-        <span class="score-bar-value">${val}</span>
-      </div>`;
-  }
+  const verdictLabels = { BUY: 'Buy', NEGOTIATE: 'Negotiate', PASS: 'Pass' };
+  const verdictIcons = { BUY: 'thumb_up', NEGOTIATE: 'handshake', PASS: 'block' };
+  const riskLabels = { low: 'Low risk', medium: 'Med risk', high: 'High risk' };
 
   return `
     <div class="deal-card">
       <div class="deal-card__header">
         <div class="deal-card__rank deal-card__rank--${rank}">#${rank}</div>
-        <div class="deal-card__price">${deal.price || 'לא זמין'}</div>
+        <div class="deal-card__price">${deal.price || 'N/A'}</div>
       </div>
       <div class="deal-card__body">
-        <h3 class="deal-card__title">${deal.title || 'מוצר לא ידוע'}</h3>
+        <h3 class="deal-card__title">${deal.title || 'Unknown product'}</h3>
         <div class="deal-card__seller">
-          ${icon('store', 14)} ${deal.seller || 'לא ידוע'}
+          ${icon('store', 16)} <strong>${deal.seller || 'Unknown'}</strong>
         </div>
         <div class="deal-card__badges">
           <span class="badge badge-${verdict.toLowerCase()}">
-            ${icon(verdict === 'BUY' ? 'thumb_up' : verdict === 'NEGOTIATE' ? 'handshake' : 'block', 14)}
-            ${verdictLabels[verdict] || 'לוותר'}
+            ${icon(verdictIcons[verdict] || 'block', 14)}
+            ${verdictLabels[verdict] || 'Pass'}
           </span>
-          <span class="badge badge-risk-${risk}">סיכון: ${riskLabels[risk] || 'בינוני'}</span>
+          <span class="badge badge-risk-${risk}">${riskLabels[risk] || 'Med risk'}</span>
         </div>
-        <p class="deal-card__description">${deal.description || ''}</p>
-        ${deal.explanation ? `
-          <div class="deal-card__explanation">
-            <div class="deal-card__explanation-label">למה העסקה הזו?</div>
-            <p>${deal.explanation}</p>
-          </div>` : ''}
-        ${deal.total_score ? `
-          <div class="deal-card__score">
-            <div class="deal-card__score-total">
-              <span class="deal-card__score-number">${Math.round(deal.total_score)}</span>
-              <span class="deal-card__score-max">/ 100</span>
-            </div>
-            <div class="score-bars">${scoreBarsHTML}</div>
-          </div>` : ''}
+
+        ${deal.explanation ? `<p class="deal-card__why">${deal.explanation}</p>` : ''}
+
         <div class="deal-card__contacts">
           ${deal.phone && deal.phone !== 'N/A' ? `
-            <div class="deal-card__contact">
-              ${icon('call', 16)}
-              <a href="tel:${deal.phone}">${deal.phone}</a>
-            </div>` : ''}
+            <a href="tel:${deal.phone}" class="deal-card__contact deal-card__contact--phone">
+              ${icon('call', 18)}
+              <span>${deal.phone}</span>
+            </a>` : ''}
         </div>
       </div>
-      ${deal.negotiation_strategy ? `
-        <div class="deal-card__tip">
-          ${icon('lightbulb', 16)}
-          <span>${deal.negotiation_strategy}</span>
-        </div>` : ''}
       <div class="deal-card__actions">
         ${deal.url && deal.url !== '#' ? `
-          <a href="${deal.url}" target="_blank" rel="noopener" class="btn btn-filled">
-            ${icon('open_in_new', 18)} צפה בעסקה
+          <a href="${deal.url}" target="_blank" rel="noopener" class="btn btn-filled btn-block">
+            ${icon('open_in_new', 18)} View deal
           </a>` : `
-          <button class="btn btn-filled" onclick="window.__toast('דמו — בגרסה המלאה זה יפתח את דף העסקה')">
-            ${icon('open_in_new', 18)} צפה בעסקה
+          <button class="btn btn-filled btn-block" onclick="window.__toast('Demo — opens deal page in full app')">
+            ${icon('open_in_new', 18)} View deal
           </button>`}
       </div>
     </div>`;
@@ -152,10 +124,9 @@ export function renderHistoryCard(search) {
                      search.status === 'failed' ? 'error' : 'pending';
   const statusClass = search.status;
   const date = new Date(search.started_at);
-  const dateStr = date.toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' }) +
-                  ' בשעה ' + date.toLocaleTimeString('he-IL', { hour: 'numeric', minute: '2-digit' });
-  const meta = search.status === 'completed' ? `נמצאו ${search.deals_found} עסקאות` :
-               search.status === 'failed' ? 'החיפוש נכשל' : 'בתהליך...';
+  const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const meta = search.status === 'completed' ? `${search.deals_found} deals` :
+               search.status === 'failed' ? 'Failed' : 'Running...';
 
   return `
     <div class="history-card" data-id="${search.id}" onclick="window.location.hash='#/results/${search.id}'">
@@ -175,21 +146,18 @@ export function renderHistoryCard(search) {
 
 // ---- Comparison Table ----
 export function renderComparisonTable(deals) {
-  const verdictLabels = { BUY: 'לקנות', NEGOTIATE: 'מו״מ', PASS: 'לוותר' };
-  const riskLabels = { low: 'נמוך', medium: 'בינוני', high: 'גבוה' };
+  const verdictLabels = { BUY: 'Buy', NEGOTIATE: 'Negotiate', PASS: 'Pass' };
 
   const rows = deals.map(d => {
     const v = (d.verdict || 'PASS').toUpperCase();
-    const r = (d.risk_level || 'medium').toLowerCase();
-    const price = d.price_numeric ? `₪${d.price_numeric.toFixed(2)}` : (d.price || 'לא זמין');
+    const price = d.price_numeric ? `₪${d.price_numeric.toFixed(0)}` : (d.price || 'N/A');
     return `<tr>
       <td><strong>#${d.rank || ''}</strong></td>
-      <td>${(d.title || '').substring(0, 50)}${(d.title || '').length > 50 ? '...' : ''}</td>
-      <td style="font-weight:600;color:var(--md-success)">${price}</td>
-      <td>${d.seller || 'לא זמין'}</td>
-      <td><span class="badge badge-${v.toLowerCase()}">${verdictLabels[v] || 'לוותר'}</span></td>
+      <td>${(d.title || '').substring(0, 40)}${(d.title || '').length > 40 ? '...' : ''}</td>
+      <td class="table-price">${price}</td>
+      <td>${d.seller || 'N/A'}</td>
+      <td><span class="badge badge-${v.toLowerCase()}">${verdictLabels[v] || 'Pass'}</span></td>
       <td>${d.total_score || '-'}</td>
-      <td><span class="badge badge-risk-${r}">${riskLabels[r] || 'בינוני'}</span></td>
     </tr>`;
   }).join('');
 
@@ -197,7 +165,7 @@ export function renderComparisonTable(deals) {
     <div class="data-table-wrapper">
       <table class="data-table">
         <thead>
-          <tr><th>דירוג</th><th>מוצר</th><th>מחיר</th><th>מוכר</th><th>המלצה</th><th>ציון</th><th>סיכון</th></tr>
+          <tr><th>#</th><th>Product</th><th>Price</th><th>Seller</th><th>Verdict</th><th>Score</th></tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>

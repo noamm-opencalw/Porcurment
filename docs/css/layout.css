@@ -1,5 +1,5 @@
 /* ============================================
-   Porcurment — Layout (Header, Nav, Content)
+   DealFinder — Layout (Header, Nav, Content)
    ============================================ */
 
 /* ---- Header ---- */
@@ -7,7 +7,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--md-surface-container);
+  background: rgba(250, 250, 250, 0.85);
   border-bottom: 1px solid var(--md-outline-variant);
   backdrop-filter: blur(12px);
 }
@@ -15,7 +15,7 @@
 .header__inner {
   max-width: var(--content-max-width);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 20px;
   height: var(--header-height);
   display: flex;
   align-items: center;
@@ -25,7 +25,7 @@
 .header__brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   text-decoration: none;
   color: var(--md-on-surface);
   cursor: pointer;
@@ -33,19 +33,18 @@
 
 .header__brand:hover { text-decoration: none; }
 
-.header__brand-icon {
+.header__brand .material-symbols-rounded {
   font-size: 28px;
   color: var(--md-primary);
 }
 
 .header__brand-text {
-  font-family: 'Google Sans', sans-serif;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
-/* Desktop nav in header */
+/* Desktop nav */
 .header__nav {
   display: none;
   gap: 4px;
@@ -54,11 +53,11 @@
 .header__nav-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 20px;
+  gap: 6px;
+  padding: 6px 16px;
   border-radius: var(--radius-full);
   color: var(--md-on-surface-variant);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   text-decoration: none;
   transition: all var(--duration-short) var(--motion-standard);
@@ -72,11 +71,11 @@
 }
 
 .header__nav-item.active {
-  background: var(--md-secondary-container);
-  color: var(--md-on-secondary-container);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
 }
 
-.header__nav-item .material-symbols-rounded { font-size: 20px; }
+.header__nav-item .material-symbols-rounded { font-size: 18px; }
 
 /* ---- Bottom Navigation (Mobile) ---- */
 .bottom-nav {
@@ -85,7 +84,8 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: var(--md-surface-container);
+  background: rgba(250, 250, 250, 0.92);
+  backdrop-filter: blur(12px);
   border-top: 1px solid var(--md-outline-variant);
   display: flex;
   justify-content: space-around;
@@ -98,37 +98,37 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 8px 16px;
+  gap: 2px;
+  padding: 6px 16px;
   color: var(--md-on-surface-variant);
   text-decoration: none;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   border-radius: var(--radius-lg);
   transition: all var(--duration-short) var(--motion-standard);
   cursor: pointer;
-  min-width: 64px;
+  min-width: 56px;
 }
 
 .bottom-nav__item:hover { text-decoration: none; }
 
-.bottom-nav__item .material-symbols-rounded { font-size: 24px; }
+.bottom-nav__item .material-symbols-rounded { font-size: 22px; }
 
 .bottom-nav__item.active {
-  color: var(--md-on-secondary-container);
+  color: var(--md-primary);
 }
 
 .bottom-nav__item.active .material-symbols-rounded {
-  background: var(--md-secondary-container);
+  background: var(--md-primary-container);
   border-radius: var(--radius-full);
-  padding: 4px 16px;
+  padding: 3px 14px;
 }
 
 /* ---- Main Content ---- */
 #app {
   max-width: var(--content-max-width);
   margin: 0 auto;
-  padding: 24px;
+  padding: 20px;
   min-height: calc(100vh - var(--header-height) - var(--bottom-nav-height));
 }
 

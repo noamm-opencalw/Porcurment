@@ -1,54 +1,54 @@
 /* ============================================
-   Porcurment — Design Tokens (Material You)
+   DealFinder — Design Tokens
    ============================================ */
 
 :root {
-  /* Primary */
-  --md-primary: #6750A4;
+  /* Primary — electric blue */
+  --md-primary: #4F6BFF;
   --md-on-primary: #FFFFFF;
-  --md-primary-container: #EADDFF;
-  --md-on-primary-container: #21005D;
+  --md-primary-container: #E0E5FF;
+  --md-on-primary-container: #001452;
 
   /* Secondary */
-  --md-secondary: #625B71;
+  --md-secondary: #5A5D72;
   --md-on-secondary: #FFFFFF;
-  --md-secondary-container: #E8DEF8;
-  --md-on-secondary-container: #1D192B;
+  --md-secondary-container: #DFE1F9;
+  --md-on-secondary-container: #171A2C;
 
   /* Tertiary */
-  --md-tertiary: #7D5260;
-  --md-tertiary-container: #FFD8E4;
-  --md-on-tertiary-container: #31111D;
+  --md-tertiary: #76546E;
+  --md-tertiary-container: #FFD7F1;
+  --md-on-tertiary-container: #2D1229;
 
-  /* Surface */
-  --md-surface: #FEF7FF;
-  --md-surface-dim: #DED8E1;
-  --md-surface-bright: #FEF7FF;
+  /* Surface — clean white */
+  --md-surface: #FAFAFA;
+  --md-surface-dim: #DDD9DE;
+  --md-surface-bright: #FAFAFA;
   --md-surface-container-lowest: #FFFFFF;
-  --md-surface-container-low: #F7F2FA;
-  --md-surface-container: #F3EDF7;
-  --md-surface-container-high: #ECE6F0;
-  --md-surface-container-highest: #E6E0E9;
+  --md-surface-container-low: #F5F3F7;
+  --md-surface-container: #EFECF1;
+  --md-surface-container-high: #E9E7EC;
+  --md-surface-container-highest: #E3E1E6;
 
   /* On-surface */
-  --md-on-surface: #1D1B20;
-  --md-on-surface-variant: #49454F;
-  --md-outline: #79747E;
-  --md-outline-variant: #CAC4D0;
+  --md-on-surface: #1B1B1F;
+  --md-on-surface-variant: #46464F;
+  --md-outline: #777680;
+  --md-outline-variant: #C7C5D0;
 
   /* Semantic */
-  --md-error: #B3261E;
-  --md-error-container: #F9DEDC;
-  --md-success: #1B873B;
-  --md-success-container: #C4EED0;
-  --md-warning: #E8710A;
-  --md-warning-container: #FFDDB5;
+  --md-error: #BA1A1A;
+  --md-error-container: #FFDAD6;
+  --md-success: #006D3B;
+  --md-success-container: #9CF6B4;
+  --md-warning: #8B5000;
+  --md-warning-container: #FFDCB8;
 
   /* Elevation */
-  --elevation-1: 0 1px 3px 1px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.12);
-  --elevation-2: 0 2px 6px 2px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.12);
-  --elevation-3: 0 4px 8px 3px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.12);
-  --elevation-4: 0 6px 10px 4px rgba(0,0,0,.08), 0 2px 3px rgba(0,0,0,.12);
+  --elevation-1: 0 1px 3px 1px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.08);
+  --elevation-2: 0 2px 6px 2px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.08);
+  --elevation-3: 0 4px 8px 3px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.08);
+  --elevation-4: 0 6px 10px 4px rgba(0,0,0,.06), 0 2px 3px rgba(0,0,0,.08);
 
   /* Shape */
   --radius-xs: 4px;
@@ -66,7 +66,7 @@
   --duration-long: 500ms;
 
   /* Layout */
-  --content-max-width: 1280px;
-  --header-height: 64px;
-  --bottom-nav-height: 72px;
+  --content-max-width: 960px;
+  --header-height: 56px;
+  --bottom-nav-height: 64px;
 }
