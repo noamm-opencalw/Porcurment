@@ -40,6 +40,10 @@ class DealScraperTool(BaseTool):
     args_schema: Type[BaseModel] = DealScraperInput
 
     def _run(self, url: str) -> str:
+        # --- Reject search engine URLs ---
+        if "google.com/search" in url or "google.co.il/search" in url or "/search?q=" in url or "bing.com/search" in url:
+            return json.dumps({"success": False, "error": "Rejected: search engine URL, not a product page", "url": url})
+
         # --- Strategy 1: official ScrapeWebsiteTool ---
         if _SCRAPE_TOOL is not None:
             try:

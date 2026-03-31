@@ -24,6 +24,27 @@ except ImportError:
     pass
 
 
+# ---------- URL validation ----------
+
+_BLOCKED_URL_PATTERNS = [
+    "google.com/search",
+    "google.co.il/search",
+    "/search?q=",
+    "bing.com/search",
+    "yahoo.com/search",
+]
+
+
+def validate_product_url(url: str) -> bool:
+    """Return True if the URL is a direct product page, False if it's a search engine results page."""
+    if not url:
+        return False
+    for pattern in _BLOCKED_URL_PATTERNS:
+        if pattern in url:
+            return False
+    return True
+
+
 # ---------- Thin wrapper that the agents reference ----------
 
 class WebSearchInput(BaseModel):
@@ -94,6 +115,7 @@ class WebSearchTool(BaseTool):
                     "source": "serper",
                 }
                 for item in data.get("organic", [])
+                if validate_product_url(item.get("link", ""))
             ]
             return json.dumps({
                 "success": True,
