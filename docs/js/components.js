@@ -153,17 +153,16 @@ export function renderHistoryCard(search) {
 
 // ---- Comparison Table ----
 export function renderComparisonTable(deals) {
-  const verdictLabels = { BUY: 'קנה', NEGOTIATE: 'מו״מ', PASS: 'דלג' };
-
   const rows = deals.map(d => {
-    const v = (d.verdict || 'PASS').toUpperCase();
-    const price = d.price_numeric ? `₪${d.price_numeric.toFixed(0)}` : (d.price || 'לא זמין');
+    const price = d.price || 'לא זמין';
+    const titleShort = (d.title || '').substring(0, 45) + ((d.title || '').length > 45 ? '...' : '');
+    const link = d.url ? `<a href="${d.url}" target="_blank" rel="noopener">${titleShort}</a>` : titleShort;
     return `<tr>
       <td><strong>#${d.rank || ''}</strong></td>
-      <td>${(d.title || '').substring(0, 40)}${(d.title || '').length > 40 ? '...' : ''}</td>
+      <td>${link}</td>
       <td class="table-price">${price}</td>
       <td>${d.seller || 'לא זמין'}</td>
-      <td><span class="badge badge-${v.toLowerCase()}">${verdictLabels[v] || 'דלג'}</span></td>
+      <td>${d.verdict || ''}</td>
       <td>${d.total_score || '-'}</td>
     </tr>`;
   }).join('');
@@ -172,7 +171,7 @@ export function renderComparisonTable(deals) {
     <div class="data-table-wrapper">
       <table class="data-table">
         <thead>
-          <tr><th>#</th><th>מוצר</th><th>מחיר</th><th>מוכר</th><th>המלצה</th><th>ציון</th></tr>
+          <tr><th>#</th><th>מוצר</th><th>מחיר</th><th>חנות</th><th>המלצה</th><th>ציון</th></tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>

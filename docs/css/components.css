@@ -285,6 +285,12 @@
 .data-table tbody tr { transition: background var(--duration-short) var(--motion-standard); }
 .data-table tbody tr:hover { background: var(--md-surface-container-low); }
 .data-table tbody tr:last-child td { border-bottom: none; }
+.data-table td a {
+  color: var(--md-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+.data-table td a:hover { text-decoration: underline; }
 
 /* ---- Score Bars ---- */
 .score-bars { display: flex; flex-direction: column; gap: 6px; }

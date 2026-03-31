@@ -202,6 +202,7 @@ export function renderResults(queryFromHash, searchId) {
   }
 
   const top3 = deals.slice(0, 3);
+  const rest = allDeals ? allDeals.slice(3) : [];
 
   return `
     <div class="view-enter">
@@ -222,10 +223,10 @@ export function renderResults(queryFromHash, searchId) {
         ${top3.map(d => renderDealCard(d)).join('')}
       </div>
 
-      ${allDeals && allDeals.length > 3 ? `
+      ${rest.length > 0 ? `
         <div class="comparison-section">
-          <h2>כל העסקאות</h2>
-          ${renderComparisonTable(allDeals)}
+          <h2>${icon('list', 22)} הצעות נוספות</h2>
+          ${renderComparisonTable(rest)}
         </div>` : ''}
 
       <div class="results-actions">
