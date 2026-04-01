@@ -22,6 +22,29 @@ _deal_scraper = DealScraperTool()
 _price_comparator = PriceComparatorTool()
 
 
+def create_product_specifier() -> Agent:
+    return Agent(
+        role="מומחה מפרט מוצרים",
+        goal=(
+            "קבל שאילתת מוצר כללית והפוך אותה למפרט חיפוש ספציפי ומדויק. "
+            "חקור את קטגוריית המוצר, זהה דגמים מובילים ומקובלים בישראל, "
+            "ופק רשימת שאילתות חיפוש ממוקדות לאתרי קניות ישראליים."
+        ),
+        backstory=(
+            "אתה מומחה לניתוח מוצרים ומפרטים טכניים. אתה יודע איך לחקור "
+            "קטגוריית מוצר, לזהות את הדגמים הפופולריים בשוק הישראלי, "
+            "ולהמיר שאילתה כללית לחיפוש ספציפי שיניב תוצאות מדויקות "
+            "באתרים כמו זאפ, KSP ו-Ivory."
+        ),
+        llm=llm_cheap,
+        tools=[_web_search],
+        memory=False,
+        verbose=True,
+        max_iter=6,
+        allow_delegation=False,
+    )
+
+
 def create_deal_hunter() -> Agent:
     return Agent(
         role="מומחה איתור עסקאות",

@@ -1,7 +1,46 @@
 from crewai import Agent, Task
 
 
-def create_broad_search_task(agent: Agent, product_query: str, include_international: bool = False) -> Task:
+def create_product_specification_task(agent: Agent, product_query: str) -> Task:
+    return Task(
+        description=f"""חקור את המוצר "{product_query}" וצור מפרט חיפוש מפורט:
+
+1. השתמש ב-web_search כדי לחקור את קטגוריית המוצר ולמצוא דגמים פופולריים.
+2. זהה מספרי דגם/SKU ספציפיים הזמינים בישראל.
+3. הערך טווח מחירים ריאלי לשוק הישראלי.
+4. זהה 3-4 מפרטים מרכזיים שחשוב לכלול בחיפוש.
+5. צור 5 שאילתות חיפוש ממוקדות:
+   - site:zap.co.il {{product}}
+   - site:ksp.co.il {{product}}
+   - site:ivory.co.il {{product}}
+   - {{product}} מחיר השוואה ישראל
+   - {{product}} cheapest Israel buy""",
+        expected_output="""אובייקט JSON בלבד:
+{{
+  "specific_query": "<מונחי חיפוש מדויקים בעברית ואנגלית כולל מותג + דגם + מפרט מרכזי>",
+  "model_numbers": ["<מספר דגם 1>", "<מספר דגם 2>"],
+  "price_range_ils": {{"min": <מינימום>, "max": <מקסימום>}},
+  "key_specs": ["<מפרט 1>", "<מפרט 2>", "<מפרט 3>"],
+  "search_queries": [
+    "site:zap.co.il <product>",
+    "site:ksp.co.il <product>",
+    "site:ivory.co.il <product>",
+    "<product> מחיר השוואה ישראל",
+    "<product> cheapest Israel buy"
+  ]
+}}
+
+פלט אך ורק JSON תקין, בלי טקסט אחר.""",
+        agent=agent,
+    )
+
+
+def create_broad_search_task(
+    agent: Agent,
+    product_query: str,
+    include_international: bool = False,
+    search_queries: list[str] | None = None,
+) -> Task:
     if include_international:
         channels = """3. חפש במספר ערוצים בעדיפות לזמינות בישראל:
    - קמעונאים ישראליים: KSP, Ivory, Bug, Zap, iDigital, מחסני חשמל
@@ -15,20 +54,30 @@ def create_broad_search_task(agent: Agent, product_query: str, include_internati
    - אתרי השוואת מחירים (Zap, Pricez)
 4. התמקד אך ורק בעסקאות ממקורות ישראליים. אל תחפש באתרים בינלאומיים."""
 
+    if search_queries:
+        queries_block = "1. הרץ את שאילתות החיפוש הממוקדות הבאות:\n" + "\n".join(
+            f'   - "{q}"' for q in search_queries
+        )
+    else:
+        queries_block = f"""1. הרץ שאילתות חיפוש ממוקדות לאתרים ספציפיים:
+   - "site:zap.co.il {product_query}"
+   - "site:ksp.co.il {product_query}"
+   - "site:ivory.co.il {product_query}"
+   - "{product_query} השוואת מחירים"
+   - "{product_query} cheapest Israel" """
+
     return Task(
         description=f"""חפש עסקאות על המוצר הבא הזמין בישראל: {product_query}
 
-1. הרץ 3-4 שאילתות חיפוש שונות עם וריאציות:
-   - "{product_query} מחיר"
-   - "{product_query} best price Israel"
-   - "{product_query} קנייה אונליין ישראל"
-   - "{product_query} השוואת מחירים"
+{queries_block}
 2. לכל תוצאה מבטיחה, השתמש ב-deal_scraper כדי לחלץ:
    שם מוצר, מחיר, URL, שם מוכר, מספר טלפון, ותיאור.
 {channels}
 5. אסוף לפחות 10 עסקאות שונות עם מחירים מאומתים.
 6. לכל עסקה, ציין את סוג המקור: retail, marketplace, או price_comparison.
 7. מחירים צריכים להיות ב-₪ (שקלים) כשזמין, או בדולרים עם ציון משלוח לישראל.
+8. לכל שאילתת חיפוש, חלץ רק URLs שהם דפי מוצר ישירים (המכילים את המוצר, מחיר וכפתור הוספה לסל).
+   דחה דפי קטגוריה, בלוגים ודפי תוצאות חיפוש.
 
 חשוב: כלול רק עסקאות שזמינות כעת וניתנות לרכישה/משלוח בישראל. דלג על עסקאות שפג תוקפן.""",
         expected_output="""רשימת JSON של 10+ עסקאות. לכל עסקה חייב להיות:
@@ -41,6 +90,8 @@ def create_broad_search_task(agent: Agent, product_query: str, include_internati
 - description: תיאור מוצר של 2-3 משפטים
 - source_type: "retail" | "marketplace" | "price_comparison"
 - shipping_info: עלות משלוח, "חינם", או "לא ידוע"
+
+CRITICAL: Every url field MUST be a direct link to the product page on the retailer's website. URLs containing 'google.com/search', '/search?q=', or any search engine results page are STRICTLY FORBIDDEN. If you cannot find a direct product URL, omit that deal entirely.
 
 פלט אך ורק את מערך ה-JSON, בלי טקסט אחר.""",
         agent=agent,
