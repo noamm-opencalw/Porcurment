@@ -40,6 +40,11 @@ export function renderHome() {
           </div>
         </form>
 
+        <label class="international-toggle">
+          <input type="checkbox" id="include-international">
+          <span>כלול גם תוצאות מאתרים בינלאומיים (Amazon, AliExpress, eBay)</span>
+        </label>
+
         <div class="home-suggestions" id="suggestions">
           <button class="chip" data-query="מקלדת אלחוטית">מקלדת אלחוטית</button>
           <button class="chip" data-query="כיסא משרדי ארגונומי">כיסא ארגונומי</button>
@@ -55,10 +60,12 @@ async function startSearch(query) {
   if (!searchState.query) searchState.query = query;
   searchState.refinedQuery = query;
 
+  const includeInternational = document.getElementById('include-international')?.checked || false;
+
   showLoading('מחפש את העסקאות הטובות ביותר', `מחפש "${query}"...`);
 
   try {
-    const data = await searchDeals(query);
+    const data = await searchDeals(query, includeInternational);
 
     if (data.error && (!data.deals || data.deals.length === 0)) {
       hideLoading();

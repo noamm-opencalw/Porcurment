@@ -19,11 +19,11 @@ export async function clarifyQuery(productQuery) {
   return resp.json();
 }
 
-export async function searchDeals(productQuery) {
+export async function searchDeals(productQuery, includeInternational = false) {
   const resp = await fetch(edgeFn('search'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ product_query: productQuery }),
+    body: JSON.stringify({ product_query: productQuery, include_international: includeInternational }),
   });
   if (!resp.ok) throw new Error(`חיפוש נכשל (${resp.status})`);
   return resp.json();

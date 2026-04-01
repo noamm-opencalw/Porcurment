@@ -51,6 +51,29 @@
   margin-top: 20px;
 }
 
+/* International toggle */
+.international-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--md-on-surface-variant);
+  cursor: pointer;
+}
+
+.international-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--md-primary);
+  cursor: pointer;
+}
+
+.international-toggle span {
+  user-select: none;
+}
+
 /* Results loading state */
 .results-loading {
   text-align: center;
