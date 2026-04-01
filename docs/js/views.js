@@ -76,6 +76,8 @@ async function startSearch(query) {
     searchState.deals = (data.deals || []).slice(0, 3);
     searchState.allDeals = data.deals || [];
     searchState.summary = data.recommendation_summary || '';
+    searchState.reason = data.recommendation_reason || '';
+    searchState.refinements = data.refinement_suggestions || [];
     searchState.searchId = data.search_id;
 
     hideLoading();
@@ -210,6 +212,8 @@ export function renderResults(queryFromHash, searchId) {
 
   const top3 = deals.slice(0, 3);
   const rest = allDeals ? allDeals.slice(3) : [];
+  const reason = searchState.reason || '';
+  const refinements = searchState.refinements || [];
 
   return `
     <div class="view-enter">
@@ -224,6 +228,17 @@ export function renderResults(queryFromHash, searchId) {
             ${icon('auto_awesome', 20)} סיכום AI
           </div>
           <p>${summary}</p>
+          ${reason ? `<p class="summary-card__reason">${icon('info', 16)} <strong>למה נבחרה:</strong> ${reason}</p>` : ''}
+        </div>` : ''}
+
+      ${refinements.length > 0 ? `
+        <div class="refinement-card">
+          <div class="refinement-card__label">
+            ${icon('tune', 18)} חדד את החיפוש לתוצאות מדויקות יותר:
+          </div>
+          <div class="refinement-chips" id="refinement-chips">
+            ${refinements.map(r => `<button class="chip chip--refinement" data-query="${query} ${r}">${r}</button>`).join('')}
+          </div>
         </div>` : ''}
 
       <div class="deals-grid">
@@ -271,14 +286,24 @@ export async function initResults(searchId) {
   document.getElementById('re-search-btn')?.addEventListener('click', (e) => {
     const query = e.currentTarget.dataset.query;
     if (query) {
-      searchState.query = null;
-      searchState.refinedQuery = null;
-      searchState.deals = null;
-      searchState.allDeals = null;
-      searchState.summary = null;
-      searchState.searchId = null;
+      searchState.query = null; searchState.refinedQuery = null;
+      searchState.deals = null; searchState.allDeals = null;
+      searchState.summary = null; searchState.reason = null;
+      searchState.refinements = null; searchState.searchId = null;
       startSearch(query);
     }
+  });
+
+  // Refinement chip clicks
+  document.getElementById('refinement-chips')?.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip--refinement');
+    if (!chip) return;
+    const newQuery = chip.dataset.query;
+    searchState.query = null; searchState.refinedQuery = null;
+    searchState.deals = null; searchState.allDeals = null;
+    searchState.summary = null; searchState.reason = null;
+    searchState.refinements = null; searchState.searchId = null;
+    startSearch(newQuery);
   });
 
   animateScoreBars();

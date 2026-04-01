@@ -130,6 +130,56 @@
 
 .summary-card p { font-size: 14px; }
 
+.summary-card__reason {
+  font-size: 13px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.6;
+}
+
+/* Refinement suggestions card */
+.refinement-card {
+  background: var(--md-surface-container-low);
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.refinement-card__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--md-on-surface-variant);
+  margin-bottom: 12px;
+}
+
+.refinement-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip--refinement {
+  background: var(--md-surface);
+  border: 1px solid var(--md-primary);
+  color: var(--md-primary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-short) var(--motion-standard);
+}
+
+.chip--refinement:hover {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+}
+
 /* Deal cards grid — clean Google Cards */
 .deals-grid {
   display: grid;

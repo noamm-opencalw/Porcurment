@@ -62,5 +62,7 @@ export const searchState = {
   deals: null,
   allDeals: null,
   summary: null,
+  reason: null,
+  refinements: null,
   searchId: null,
 };
