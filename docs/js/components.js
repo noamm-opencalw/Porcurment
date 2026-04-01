@@ -34,12 +34,14 @@ export function showLoading(title, subtitle) {
   if (subtitle) document.getElementById('loading-subtitle').textContent = subtitle;
 
   const stagesEl = document.getElementById('loading-stages');
-  stagesEl.innerHTML = STAGES.map((s, i) =>
-    `<div class="loading-stage${i === 0 ? ' active' : ''}" id="stage-${s.key}">
-      ${icon(i === 0 ? 'pending' : 'circle', 20)}
-      ${s.label}
-    </div>`
-  ).join('');
+  if (stagesEl) {
+    stagesEl.innerHTML = STAGES.map((s, i) =>
+      `<div class="loading-stage${i === 0 ? ' active' : ''}" id="stage-${s.key}">
+        ${icon(i === 0 ? 'pending' : 'circle', 20)}
+        ${s.label}
+      </div>`
+    ).join('');
+  }
 
   overlay.classList.add('active');
   stageIndex = 0;
