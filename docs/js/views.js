@@ -242,13 +242,14 @@ export function renderResults(queryFromHash, searchId) {
 
 export async function initResults(searchId) {
   // If navigating to a saved search, load from API
-  if (searchId && (!searchState.deals || searchState.deals.length === 0)) {
+  if (searchId && searchState.searchId !== searchId) {
     try {
       const data = await getSearchResult(searchId);
       searchState.deals = (data.deals || []).slice(0, 3);
       searchState.allDeals = data.deals || [];
       searchState.summary = data.recommendation_summary || '';
       searchState.searchId = searchId;
+      searchState.query = data.product_query;
       searchState.refinedQuery = data.product_query;
 
       const app = document.getElementById('app');
