@@ -81,18 +81,15 @@ function createAppShell() {
   if (header) {
     header.innerHTML = `
       <a class="header__brand" onclick="window.location.hash='#/'">
-        ${icon('search_check', 26)}
-        <span class="header__brand-text">DealFinder</span>
+        ${icon('local_offer', 24)}
+        <span class="header__brand-text">דילפיינדר</span>
       </a>
       <nav class="header__nav">
         <a class="header__nav-item" data-view="home" onclick="window.location.hash='#/'">
-          ${icon('search', 20)} חיפוש
-        </a>
-        <a class="header__nav-item" data-view="results" onclick="window.location.hash='#/results'">
-          ${icon('analytics', 20)} תוצאות
+          ${icon('search', 20)}
         </a>
         <a class="header__nav-item" data-view="history" onclick="window.location.hash='#/history'">
-          ${icon('history', 20)} היסטוריה
+          ${icon('history', 20)}
         </a>
       </nav>
     `;
@@ -104,10 +101,6 @@ function createAppShell() {
       <a class="bottom-nav__item" data-view="home" onclick="window.location.hash='#/'">
         ${icon('search')}
         <span>חיפוש</span>
-      </a>
-      <a class="bottom-nav__item" data-view="results" onclick="window.location.hash='#/results'">
-        ${icon('analytics')}
-        <span>תוצאות</span>
       </a>
       <a class="bottom-nav__item" data-view="history" onclick="window.location.hash='#/history'">
         ${icon('history')}

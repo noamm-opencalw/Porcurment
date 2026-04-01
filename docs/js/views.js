@@ -13,44 +13,39 @@ export function renderHome() {
   return `
     <div class="view-enter">
       <section class="home-hero">
-        <div class="home-hero__icon">
-          ${icon('search_check', 36)}
-        </div>
-        <h1>מצא את העסקה הטובה ביותר</h1>
-        <p>חיפוש חכם בין ספקים, השוואת מחירים ודירוג אוטומטי של 3 העסקאות המובילות.</p>
+        <span class="home-hero__emoji">🏷️</span>
+        <h1>מצא עסקה</h1>
+        <p>AI סורק, משווה ומדרג</p>
       </section>
 
       <section class="home-search">
         <form id="search-form">
           <div class="search-box">
-            <div class="search-box__icon">
-              ${icon('search')}
-            </div>
             <input
               type="text"
               id="search-input"
               class="search-box__input"
-              placeholder="מה אתה מחפש?"
+              placeholder="מה לחפש?"
               autocomplete="off"
               required
             >
-            <button type="submit" class="btn btn-filled btn-lg">
-              ${icon('search', 20)} חיפוש
+            <button type="submit" class="search-box__btn" aria-label="חיפוש">
+              ${icon('arrow_back', 22)}
             </button>
           </div>
         </form>
 
-        <label class="international-toggle">
+        <label class="intl-toggle">
           <input type="checkbox" id="include-international">
-          <span>כלול גם תוצאות מאתרים בינלאומיים (Amazon, AliExpress, eBay)</span>
+          <span>${icon('language', 16)} כולל בינלאומי</span>
         </label>
 
-        <div class="home-suggestions" id="suggestions">
-          <button class="chip" data-query="מקלדת אלחוטית">מקלדת אלחוטית</button>
-          <button class="chip" data-query="כיסא משרדי ארגונומי">כיסא ארגונומי</button>
-          <button class="chip" data-query="מסך 27 אינץ 4K">מסך 27״ 4K</button>
-          <button class="chip" data-query="אוזניות עם מסנן רעשים">אוזניות NC</button>
-          <button class="chip" data-query="שולחן עמידה מתכוונן">שולחן עמידה</button>
+        <div class="home-chips" id="suggestions">
+          <button class="chip" data-query="אוזניות בלוטוס">${icon('headphones', 16)} אוזניות</button>
+          <button class="chip" data-query="מקלדת מכנית">${icon('keyboard', 16)} מקלדת</button>
+          <button class="chip" data-query="מסך גיימינג 27 אינץ">${icon('monitor', 16)} מסך 27״</button>
+          <button class="chip" data-query="כיסא משרדי ארגונומי">${icon('chair', 16)} כיסא</button>
+          <button class="chip" data-query="עכבר גיימינג">${icon('mouse', 16)} עכבר</button>
         </div>
       </section>
     </div>`;

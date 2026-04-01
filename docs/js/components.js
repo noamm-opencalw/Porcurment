@@ -71,51 +71,23 @@ export function hideLoading() {
 // ---- Deal Card ----
 export function renderDealCard(deal) {
   const rank = deal.rank || 1;
-  const verdict = (deal.verdict || 'PASS').toUpperCase();
-  const risk = (deal.risk_level || 'medium').toLowerCase();
-
-  const verdictLabels = { BUY: 'קנה', NEGOTIATE: 'נהל מו״מ', PASS: 'דלג' };
-  const verdictIcons = { BUY: 'thumb_up', NEGOTIATE: 'handshake', PASS: 'block' };
-  const riskLabels = { low: 'סיכון נמוך', medium: 'סיכון בינוני', high: 'סיכון גבוה' };
+  const medals = ['🏆', '🥈', '🥉'];
+  const medal = medals[rank - 1] || `#${rank}`;
+  const verified = deal.price_verified ? `${icon('verified', 14)}` : '';
 
   return `
     <div class="deal-card">
-      <div class="deal-card__header">
-        <div class="deal-card__rank deal-card__rank--${rank}">#${rank}</div>
-        <div class="deal-card__price">${deal.price || 'לא זמין'}</div>
+      <div class="deal-card__top">
+        <span class="deal-card__medal">${medal}</span>
+        <span class="deal-card__price">${deal.price || '?'}${verified}</span>
       </div>
-      <div class="deal-card__body">
-        <h3 class="deal-card__title">${deal.title || 'מוצר לא ידוע'}</h3>
-        <div class="deal-card__seller">
-          ${icon('store', 16)} <strong>${deal.seller || 'לא ידוע'}</strong>
-        </div>
-        <div class="deal-card__badges">
-          <span class="badge badge-${verdict.toLowerCase()}">
-            ${icon(verdictIcons[verdict] || 'block', 14)}
-            ${verdictLabels[verdict] || 'דלג'}
-          </span>
-          <span class="badge badge-risk-${risk}">${riskLabels[risk] || 'סיכון בינוני'}</span>
-        </div>
-
-        ${deal.explanation ? `<p class="deal-card__why">${deal.explanation}</p>` : ''}
-
-        <div class="deal-card__contacts">
-          ${deal.phone && deal.phone !== 'N/A' ? `
-            <a href="tel:${deal.phone}" class="deal-card__contact deal-card__contact--phone">
-              ${icon('call', 18)}
-              <span>${deal.phone}</span>
-            </a>` : ''}
-        </div>
-      </div>
-      <div class="deal-card__actions">
-        ${deal.url && deal.url !== '#' ? `
-          <a href="${deal.url}" target="_blank" rel="noopener" class="btn btn-filled btn-block">
-            ${icon('open_in_new', 18)} צפה בעסקה
-          </a>` : `
-          <span class="btn btn-filled btn-block btn-disabled">
-            ${icon('link_off', 18)} אין קישור
-          </span>`}
-      </div>
+      <div class="deal-card__title">${(deal.title || '').substring(0, 60)}</div>
+      <div class="deal-card__seller">${icon('store', 14)} ${deal.seller || ''}</div>
+      ${deal.verdict ? `<div class="deal-card__verdict">${deal.verdict}</div>` : ''}
+      ${deal.url ? `
+        <a href="${deal.url}" target="_blank" rel="noopener" class="deal-card__link">
+          ${icon('open_in_new', 16)} לעסקה
+        </a>` : ''}
     </div>`;
 }
 
