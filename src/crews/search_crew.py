@@ -16,15 +16,22 @@ def build_search_crew(
     specifier = create_product_specifier()
     hunter = create_deal_hunter()
 
-    tasks = [
-        create_product_specification_task(specifier, product_query),
-        create_broad_search_task(hunter, product_query, include_international, refined_queries),
-        create_deal_enrichment_task(hunter),
-    ]
+    spec_task = create_product_specification_task(specifier, product_query)
+
+    search_task = create_broad_search_task(
+        hunter,
+        product_query,
+        include_international,
+        search_queries=refined_queries,
+    )
+    # Wire spec_task output as context for search_task
+    search_task.context = [spec_task]
+
+    enrich_task = create_deal_enrichment_task(hunter)
 
     return Crew(
         agents=[specifier, hunter],
-        tasks=tasks,
+        tasks=[spec_task, search_task, enrich_task],
         process=Process.sequential,
         verbose=True,
         memory=False,

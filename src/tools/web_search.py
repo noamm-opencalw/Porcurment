@@ -15,6 +15,18 @@ from pydantic import BaseModel, Field
 
 from src.config.settings import SERPER_API_KEY
 
+_SEARCH_ENGINE_URL_PATTERNS = (
+    "google.com/search",
+    "google.co.il/search",
+    "/search?q=",
+    "bing.com/search",
+)
+
+
+def validate_product_url(url: str) -> bool:
+    """Return False if the URL is a search engine results page, not a product page."""
+    return not any(pattern in url for pattern in _SEARCH_ENGINE_URL_PATTERNS)
+
 # ---------- Try to import the official tool ----------
 _SERPER_DEV_TOOL = None
 try:

@@ -3,31 +3,30 @@ from crewai import Agent, Task
 
 def create_product_specification_task(agent: Agent, product_query: str) -> Task:
     return Task(
-        description=f"""חקור את המוצר "{product_query}" והפק מפרט חיפוש מדויק.
+        description=f"""חקור את המוצר "{product_query}" וצור מפרט חיפוש מפורט:
 
-1. חפש באינטרנט כדי להבין את קטגוריית המוצר ולזהות את הדגמים המובילים הנמכרים בישראל.
-2. זהה 3-5 דגמים ספציפיים (מותג + מספר דגם) שמתאימים לתיאור המשתמש.
-3. בדוק טווח מחירים ריאלי בשוק הישראלי.
-4. הפק רשימת 5 שאילתות חיפוש ממוקדות:
-   - שאילתה 1: site:zap.co.il [דגם ספציפי]
-   - שאילתה 2: site:ksp.co.il [דגם ספציפי]
-   - שאילתה 3: site:ivory.co.il [דגם ספציפי]
-   - שאילתה 4: [מוצר] מחיר השוואה ישראל
-   - שאילתה 5: [מוצר] best price Israel buy
-
-חשוב: השאילתות חייבות להכיל שם מותג + דגם ספציפי, לא קטגוריה גנרית.""",
-        expected_output="""אובייקט JSON:
+1. השתמש ב-web_search כדי לחקור את קטגוריית המוצר ולמצוא דגמים פופולריים.
+2. זהה מספרי דגם/SKU ספציפיים הזמינים בישראל.
+3. הערך טווח מחירים ריאלי לשוק הישראלי.
+4. זהה 3-4 מפרטים מרכזיים שחשוב לכלול בחיפוש.
+5. צור 5 שאילתות חיפוש ממוקדות:
+   - site:zap.co.il {{product}}
+   - site:ksp.co.il {{product}}
+   - site:ivory.co.il {{product}}
+   - {{product}} מחיר השוואה ישראל
+   - {{product}} cheapest Israel buy""",
+        expected_output="""אובייקט JSON בלבד:
 {{
-  "specific_query": "שאילתה מדויקת בעברית ובאנגלית (מותג + דגם + מפרט מרכזי)",
-  "model_numbers": ["SKU1", "SKU2", "SKU3"],
-  "price_range_ils": {{"min": 100, "max": 500}},
-  "key_specs": ["מפרט1", "מפרט2", "מפרט3"],
+  "specific_query": "<מונחי חיפוש מדויקים בעברית ואנגלית כולל מותג + דגם + מפרט מרכזי>",
+  "model_numbers": ["<מספר דגם 1>", "<מספר דגם 2>"],
+  "price_range_ils": {{"min": <מינימום>, "max": <מקסימום>}},
+  "key_specs": ["<מפרט 1>", "<מפרט 2>", "<מפרט 3>"],
   "search_queries": [
-    "site:zap.co.il דגם ספציפי",
-    "site:ksp.co.il דגם ספציפי",
-    "site:ivory.co.il דגם ספציפי",
-    "דגם ספציפי מחיר השוואה ישראל",
-    "דגם ספציפי best price Israel buy"
+    "site:zap.co.il <product>",
+    "site:ksp.co.il <product>",
+    "site:ivory.co.il <product>",
+    "<product> מחיר השוואה ישראל",
+    "<product> cheapest Israel buy"
   ]
 }}
 
@@ -40,60 +39,59 @@ def create_broad_search_task(
     agent: Agent,
     product_query: str,
     include_international: bool = False,
-    refined_queries: list[str] | None = None,
+    search_queries: list[str] | None = None,
 ) -> Task:
-    if refined_queries:
-        search_instructions = "1. הרץ את שאילתות החיפוש הממוקדות הבאות (שהופקו על ידי מומחה המפרט):\n"
-        for i, q in enumerate(refined_queries, 1):
-            search_instructions += f'   - שאילתה {i}: "{q}"\n'
+    if include_international:
+        channels = """3. חפש במספר ערוצים בעדיפות לזמינות בישראל:
+   - קמעונאים ישראליים: KSP, Ivory, Bug, Zap, iDigital, מחסני חשמל
+   - אתרים בינלאומיים עם משלוח לישראל: Amazon, eBay, AliExpress
+   - אתרי השוואת מחירים ומצברי עסקאות (Zap, Pricez)
+4. כלול עסקאות גם ממקורות ישראליים וגם בינלאומיים עם משלוח לישראל."""
     else:
-        search_instructions = f"""1. הרץ שאילתות חיפוש ממוקדות לאתרים ישראליים:
+        channels = """3. חפש רק בחנויות ואתרים ישראליים:
+   - קמעונאים ישראליים: KSP, Ivory, Bug, Zap, iDigital, מחסני חשמל
+   - Amazon.co.il
+   - אתרי השוואת מחירים (Zap, Pricez)
+4. התמקד אך ורק בעסקאות ממקורות ישראליים. אל תחפש באתרים בינלאומיים."""
+
+    if search_queries:
+        queries_block = "1. הרץ את שאילתות החיפוש הממוקדות הבאות:\n" + "\n".join(
+            f'   - "{q}"' for q in search_queries
+        )
+    else:
+        queries_block = f"""1. הרץ שאילתות חיפוש ממוקדות לאתרים ספציפיים:
    - "site:zap.co.il {product_query}"
    - "site:ksp.co.il {product_query}"
    - "site:ivory.co.il {product_query}"
    - "{product_query} השוואת מחירים"
-   - "{product_query} cheapest Israel"
-"""
-
-    if include_international:
-        channels = """3. חפש גם במקורות בינלאומיים עם משלוח לישראל: Amazon, eBay, AliExpress."""
-    else:
-        channels = """3. התמקד אך ורק בחנויות ישראליות: KSP, Ivory, Bug, Zap, iDigital, מחסני חשמל."""
+   - "{product_query} cheapest Israel" """
 
     return Task(
         description=f"""חפש עסקאות על המוצר הבא הזמין בישראל: {product_query}
 
-{search_instructions}
+{queries_block}
 2. לכל תוצאה מבטיחה, השתמש ב-deal_scraper כדי לחלץ:
    שם מוצר, מחיר, URL, שם מוכר, מספר טלפון, ותיאור.
-   בעת שימוש ב-deal_scraper — העבר אך ורק URLs ישירים של דפי מוצר.
-   לכל תוצאת חיפוש, חלץ את ה-URL מה-search results ובקר בו ישירות.
 {channels}
-4. אסוף לפחות 10 עסקאות שונות עם מחירים מאומתים.
-5. לכל עסקה, ציין את סוג המקור: retail, marketplace, או price_comparison.
-6. מחירים צריכים להיות ב-₪ (שקלים).
+5. אסוף לפחות 10 עסקאות שונות עם מחירים מאומתים.
+6. לכל עסקה, ציין את סוג המקור: retail, marketplace, או price_comparison.
+7. מחירים צריכים להיות ב-₪ (שקלים) כשזמין, או בדולרים עם ציון משלוח לישראל.
+8. לכל שאילתת חיפוש, חלץ רק URLs שהם דפי מוצר ישירים (המכילים את המוצר, מחיר וכפתור הוספה לסל).
+   דחה דפי קטגוריה, בלוגים ודפי תוצאות חיפוש.
 
-CRITICAL URL RULES:
-- כל url חייב להיות קישור ישיר לדף המוצר באתר הקמעונאי (למשל: https://www.ksp.co.il/item/12345).
-- URLs שמכילים 'google.com/search', '/search?q=', או כל דף תוצאות של מנוע חיפוש — אסורים בהחלט.
-- אם אתה לא מוצא URL ישיר לדף המוצר — השמט את העסקה לגמרי.
-- דפי קטגוריה, בלוגים, ומאמרים — אינם דפי מוצר. השמט אותם.
-
-חשוב: כלול רק עסקאות שזמינות כעת וניתנות לרכישה/משלוח בישראל.""",
+חשוב: כלול רק עסקאות שזמינות כעת וניתנות לרכישה/משלוח בישראל. דלג על עסקאות שפג תוקפן.""",
         expected_output="""רשימת JSON של 10+ עסקאות. לכל עסקה חייב להיות:
 - title: שם המוצר/כותרת
 - price: מחיר מספרי (למשל 299.90)
 - currency: "ILS" או "USD" לבינלאומי
-- url: קישור ישיר לדף המוצר באתר הקמעונאי
+- url: קישור ישיר לעסקה
 - seller: שם החנות/מוכר
 - phone: מספר טלפון ליצירת קשר (או "N/A")
 - description: תיאור מוצר של 2-3 משפטים
 - source_type: "retail" | "marketplace" | "price_comparison"
 - shipping_info: עלות משלוח, "חינם", או "לא ידוע"
 
-CRITICAL: Every url field MUST be a direct link to the product page on the retailer's website.
-URLs containing 'google.com/search', '/search?q=', or any search engine results page are STRICTLY FORBIDDEN.
-If you cannot find a direct product URL, omit that deal entirely.
+CRITICAL: Every url field MUST be a direct link to the product page on the retailer's website. URLs containing 'google.com/search', '/search?q=', or any search engine results page are STRICTLY FORBIDDEN. If you cannot find a direct product URL, omit that deal entirely.
 
 פלט אך ורק את מערך ה-JSON, בלי טקסט אחר.""",
         agent=agent,
