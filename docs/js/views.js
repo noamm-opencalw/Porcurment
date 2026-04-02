@@ -2,7 +2,7 @@
 
 import { icon } from './icons.js';
 import { renderDealCard, renderHistoryCard, renderComparisonTable, animateScoreBars, showLoading, hideLoading, showToast } from './components.js';
-import { searchDeals, clarifyQuery, getSearchHistory, getSearchResult, searchState } from './api.js';
+import { searchDeals, clarifyQuery, getSearchHistory, getSearchResult, reportDeal, searchState } from './api.js';
 
 window.__toast = showToast;
 
@@ -76,6 +76,7 @@ async function startSearch(query) {
     searchState.searchId = data.search_id;
 
     hideLoading();
+    if (data.warning) showToast(data.warning, 5000);
     window.location.hash = `#/results?q=${encodeURIComponent(query)}`;
   } catch (err) {
     hideLoading();
@@ -132,6 +133,42 @@ function showClarificationDialog(originalQuery, question, options) {
   });
 }
 
+function showServiceWarning(originalQuery, warningText, finalQuery) {
+  const existing = document.getElementById('clarification-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'clarification-overlay';
+  overlay.className = 'clarification-overlay active';
+  overlay.innerHTML = `
+    <div class="clarification-card">
+      <div class="clarification-card__icon">
+        ${icon('warning', 32)}
+      </div>
+      <h3 class="clarification-card__title">שים לב</h3>
+      <p class="clarification-card__subtitle">${warningText}</p>
+      <div class="clarification-options">
+        <button class="clarification-option" id="service-proceed">
+          ${icon('search', 16)} חפש בכל זאת
+        </button>
+        <button class="clarification-option" id="service-cancel" style="opacity:0.7">
+          ${icon('arrow_back', 16)} חזרה
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  document.getElementById('service-proceed')?.addEventListener('click', () => {
+    overlay.remove();
+    startSearch(finalQuery);
+  });
+  document.getElementById('service-cancel')?.addEventListener('click', () => {
+    overlay.remove();
+  });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+}
+
 export function initHome() {
   document.getElementById('search-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -147,7 +184,9 @@ export function initHome() {
       const clarification = await clarifyQuery(q);
       hideLoading();
 
-      if (clarification.ready) {
+      if (clarification.category === 'service' && clarification.warning) {
+        showServiceWarning(q, clarification.warning, clarification.final_query || q);
+      } else if (clarification.ready) {
         startSearch(clarification.final_query || q);
       } else {
         showClarificationDialog(q, clarification.question, clarification.options || []);
@@ -299,6 +338,18 @@ export async function initResults(searchId) {
     searchState.summary = null; searchState.reason = null;
     searchState.refinements = null; searchState.searchId = null;
     startSearch(newQuery);
+  });
+
+  // Report buttons
+  document.querySelectorAll('.deal-card__report').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const rank = parseInt(e.currentTarget.dataset.rank);
+      if (searchState.searchId && rank) {
+        await reportDeal(searchState.searchId, rank);
+        showToast('תודה! נבדוק את זה.');
+        e.currentTarget.style.color = 'var(--md-error)';
+      }
+    });
   });
 
   animateScoreBars();

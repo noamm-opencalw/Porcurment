@@ -55,6 +55,22 @@ export async function getSearchResult(searchId) {
   };
 }
 
+export async function reportDeal(searchId, dealRank, type = 'wrong_price') {
+  await fetch(
+    `${SUPABASE_URL}/rest/v1/feedback`,
+    {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify({ search_id: searchId, deal_rank: dealRank, type }),
+    }
+  );
+}
+
 // ---- Shared state for passing results between views ----
 export const searchState = {
   query: null,

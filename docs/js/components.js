@@ -46,7 +46,7 @@ export function showLoading(title, subtitle) {
   overlay.classList.add('active');
   stageIndex = 0;
 
-  // Stages advance every 15s (real searches take 30-60s+)
+  // Stages advance every 10s
   stageTimer = setInterval(() => {
     stageIndex++;
     if (stageIndex >= STAGES.length) { stageIndex = STAGES.length - 1; return; }
@@ -62,7 +62,7 @@ export function showLoading(title, subtitle) {
         el.querySelector('.material-symbols-rounded').textContent = 'pending';
       }
     });
-  }, 15000);
+  }, 10000);
 }
 
 export function hideLoading() {
@@ -86,10 +86,10 @@ export function renderDealCard(deal) {
       <div class="deal-card__title">${(deal.title || '').substring(0, 60)}</div>
       <div class="deal-card__seller">${icon('store', 14)} ${deal.seller || ''}</div>
       ${deal.verdict ? `<div class="deal-card__verdict">${deal.verdict}</div>` : ''}
-      ${deal.url ? `
-        <a href="${deal.url}" target="_blank" rel="noopener" class="deal-card__link">
-          ${icon('open_in_new', 16)} לעסקה
-        </a>` : ''}
+      <div class="deal-card__actions">
+        ${deal.url ? `<a href="${deal.url}" target="_blank" rel="noopener" class="deal-card__link">${icon('open_in_new', 16)} לעסקה</a>` : ''}
+        <button class="deal-card__report" data-rank="${deal.rank}" title="דווח על מחיר שגוי">${icon('flag', 14)}</button>
+      </div>
     </div>`;
 }
 
